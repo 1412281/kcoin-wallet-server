@@ -12,7 +12,6 @@ var block = require('./routes/block');
 var syncBlockchain = require('./fn/syncBlockchain');
 
 
-
 var app = express();
 
 // view engine setup
@@ -49,38 +48,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-// var socket = io('wss://api.kcoin.club', {reconnection: true, autoConnect: true});
-// // var socket = io('http://localhost:4000/', {reconnect: true});
-// // var socket = io('http://localhost:4000/', {reconnection: true, autoConnect: true});
-//
-// // socket.on('connect_error', function(socket1) {
-// //     console.log(socket.id); // 'G5p5...'
-// // });
-//
-// socket.on('reconnect', function(socket) {
-//     console.log(socket); // 'G5p5...'
-// });
-//
-// socket.on('connect', function(socket1) {
-//     console.log(socket.id); // 'G5p5...'
-// });
-//
-// socket.on('connect', function () { console.log("socket connected"); });
-// socket.emit('private message', { user: 'me', msg: 'whazzzup?' });
-//
-// socket.on('connect', function (socket) {
-//     console.log('Connected!');
-//     console.log(socket);
-//
-// });
-// socket.on('block', function (socket) {
-//     console.log('new block!');
-//     console.log(socket);
-// });
-//
-// socket.on('transaction', function (socket) {
-//     console.log('new transaction!');
-//     console.log(socket);
-// });
+syncBlockchain.addBlock({});
+
 
 module.exports = app;
