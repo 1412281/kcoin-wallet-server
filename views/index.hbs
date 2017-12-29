@@ -1,2 +1,27 @@
 <h1>{{title}}</h1>
 <p>Welcome to {{title}}</p>
+<div>
+    <label for="light1">Light 1</label><input type="checkbox" id="light1">
+    <label for="light2">Light 3</label><input type="checkbox" id="light2">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+<script>
+    var socket = io();
+
+    socket.on('light1', function (data) {
+        console.log(data);
+        document.getElementById('light1').checked = data;
+    });
+
+    window.addEventListener("load", function(){ //when page loads
+
+        var lightbox = document.getElementById("light1");
+
+        lightbox.addEventListener("change", function() {
+            //console.log(lightbox.checked);
+            socket.emit("light1", Number(this.checked)); //send button status to server (as 1 or 0)
+        });
+    });
+
+</script>
