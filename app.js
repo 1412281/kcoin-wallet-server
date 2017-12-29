@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var io = require('socket.io-client');
+const WebSocket = require('ws');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -48,12 +49,65 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-var socket = io.connect('wss://api.kcoin.club', {reconnect: true});
-// var socket = io.connect('http://localhost:4000/', {reconnect: true});
+// var socket = io('wss://api.kcoin.club', {reconnection: true, autoConnect: true});
+// // var socket = io('http://localhost:4000/', {reconnect: true});
+// // var socket = io('http://localhost:4000/', {reconnection: true, autoConnect: true});
+//
+// // socket.on('connect_error', function(socket1) {
+// //     console.log(socket.id); // 'G5p5...'
+// // });
+//
+// socket.on('reconnect', function(socket) {
+//     console.log(socket); // 'G5p5...'
+// });
+//
+// socket.on('connect', function(socket1) {
+//     console.log(socket.id); // 'G5p5...'
+// });
+//
+// socket.on('connect', function () { console.log("socket connected"); });
+// socket.emit('private message', { user: 'me', msg: 'whazzzup?' });
+//
+// socket.on('connect', function (socket) {
+//     console.log('Connected!');
+//     console.log(socket);
+//
+// });
+// socket.on('block', function (socket) {
+//     console.log('new block!');
+//     console.log(socket);
+// });
+//
+// socket.on('transaction', function (socket) {
+//     console.log('new transaction!');
+//     console.log(socket);
+// });
 
-socket.on('block', function (socket) {
-    console.log('Connected!');
-    console.log(socket);
+
+
+
+const ws = new WebSocket('wss://api.kcoin.club');
+// const ws = new WebSocket('http://localhost:4000/');
+
+ws.on('open', function open() {
+    console.log('connected');
 });
+
+ws.onmessage = function (data) {
+    console.log(data);
+};
+
+setInterval(function () {
+    console.log('ping server');
+    ws.send('something');
+}, 30000);
+
+
+
+
+
+
+
+
 
 module.exports = app;
