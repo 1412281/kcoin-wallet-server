@@ -4,12 +4,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var io = require('socket.io-client');
-const WebSocket = require('ws');
+
 
 var index = require('./routes/index');
 var users = require('./routes/users');
 var block = require('./routes/block');
+var syncBlockchain = require('./fn/syncBlockchain');
 
 
 
@@ -82,32 +82,5 @@ app.use(function(err, req, res, next) {
 //     console.log('new transaction!');
 //     console.log(socket);
 // });
-
-
-
-
-const ws = new WebSocket('wss://api.kcoin.club');
-// const ws = new WebSocket('http://localhost:4000/');
-
-ws.on('open', function open() {
-    console.log('connected');
-});
-
-ws.onmessage = function (data) {
-    console.log(data);
-};
-
-setInterval(function () {
-    console.log('ping server');
-    ws.send('something');
-}, 30000);
-
-
-
-
-
-
-
-
 
 module.exports = app;
