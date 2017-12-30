@@ -11,8 +11,8 @@ exports.load = function(data) {
     mongo.connect(url, function (err, db) {
         var cursor = db.db('wallet-db').collection('blockchain1').find();
         cursor.toArray(function (mongoError, result) {
-            assert.equal(null, result);
-            d.resolve(docs);
+            assert.equal(null, mongoError);
+            d.resolve(result);
         });
 
     })

@@ -8,7 +8,7 @@ block.syncBlockchain();
 exports.addBlock = function(data) {
     console.log('add block', data); //add to db
     // db.insert({});
-    db.load({});
+    // db.load({});
 };
 
 // const ws = new WebSocket('wss://api.kcoin.club');

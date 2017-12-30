@@ -1,10 +1,79 @@
 var express = require('express');
-var router = express.Router();
+var r = express.Router();
+var blockRepo = require('../models/blockRepo');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.render('index', { title: 'BLOCK' });
+r.get('/', function(req, res) {
+    const data = req.query;
+    // console.log(walletRepo.checkExist(data.id));
+    blockRepo.
+
+    walletRepo.checkExist(data.id).then(function (data){
+
+        res.json(blockRepo.fetchAllBlockchain());
+    });
+
 });
 
+r.get('/dashboard', function(req,res) {
 
-module.exports = router;
+    const data = req.query;
+    const zip = {
+        id: data.id,
+        date_exp: parseInt(data.date_exp)
+    };
+    //console.log(zip);
+
+    if (tokenIsAvailable(data.token, zip)) {
+        console.log('token correct');
+
+        walletRepo.getDashboard(data.id).then(function (data) {
+            console.log(data);
+            res.json(data);
+        });
+    } else {
+        console.log('token fail');
+        res.end();
+    }
+});
+
+var tokenIsAvailable = function(req_token, data) {
+    if (data.date_exp.valueOf() > Date.now()) {
+        console.log('date exp over');
+        return false;
+    }
+    //console.log(req_token);
+    //console.log(createToken(data));
+    return req_token === createToken(data);
+};
+
+var createToken = function(data) {
+    //console.log(data);
+    //console.log(JSON.stringify(data));
+
+    return myCrypt(JSON.stringify(data) + key1);
+};
+
+
+var myCrypt = function(data) {
+    console.log(data);
+    return crypto.createHash('sha1').update(data + key2).digest('hex');
+};
+//
+// r.put('/', function(req, res) {
+//     console.log(req.body);
+//     walletRepo.update(req.body).then(function(data) {
+//         res.json({ status: 200 });
+//     })
+// });
+//
+// r.delete('/', function(req, res) {
+//     walletRepo.delete(req.body).then(function(data) {
+//         res.json({ status: 200 });
+//     }).catch(function(err) {
+//         console.log(err);
+//         res.end('delete fail');
+//     });
+// });
+//
+
+module.exports = r;
