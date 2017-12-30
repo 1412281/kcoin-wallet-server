@@ -8,3 +8,12 @@ var blockchain = [{"hash":"00078d1d27cae93b09f1a2769d6ab4008c8db812141ac574970d2
 exports.fetchAllBlockchain = function () {
     return blockchain;
 }
+
+exports.getBlock = function (query) {
+	var deferred = q.defer();
+    
+    db.load(query).then(function(data) {
+        deferred.resolve(data);
+    });
+    return deferred.promise;
+}

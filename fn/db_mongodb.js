@@ -4,17 +4,16 @@ var mongo = require('mongodb').MongoClient,
 
 var url = 'mongodb://kcoin:kT3XUg8L28MLFTMH@cluster0-shard-00-00-i2mpg.mongodb.net:27017,cluster0-shard-00-01-i2mpg.mongodb.net:27017,cluster0-shard-00-02-i2mpg.mongodb.net:27017/test?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin';
 
-exports.load = function(data) {
+exports.load = function(query) {
 
     var d = q.defer();
 
     mongo.connect(url, function (err, db) {
-        var cursor = db.db('wallet-db').collection('blockchain1').find();
+        var cursor = db.db('wallet-db').collection('blockchain1').find(query);
         cursor.toArray(function (mongoError, result) {
             assert.equal(null, mongoError);
             d.resolve(result);
         });
-
     })
 
     return d.promise;
@@ -185,9 +184,38 @@ exports.insert = function(data) {
         "previousBlockHash": "000b80d1045e6e6f37e8e1486df255508300fed02b672eaa411f60ec2cd08729"
     };
 
+    const example_block2 = {
+        "hash": "0008f27b6f986dfa58760e4e5d1190031074059c5fc427e0edd202080725f022",
+        "nonce": 4595,
+        "version": 1,
+        "timestamp": 1513959176,
+        "difficulty": 3,
+        "transactions": [
+            {
+                "hash": "4225e689306c6f2f7681b71e33d9c3f27ef30d51ab87949fb91220783f97d4d4",
+                "inputs": [
+                    {
+                        "unlockScript": "DATETIME Fri Dec 22 2017 16:12:56 GMT+0000 (UTC)",
+                        "referencedOutputHash": "0000000000000000000000000000000000000000000000000000000000000000",
+                        "referencedOutputIndex": -1
+                    }
+                ],
+                "outputs": [
+                    {
+                        "value": 281190,
+                        "lockScript": "ADD aa5f720c8080d81b9bd9781bf85c38c4d24cc010d0536e667f169ac8a5eb72d0"
+                    }
+                ],
+                "version": 1
+            }
+        ],
+        "transactionsHash": "4225e689306c6f2f7681b71e33d9c3f27ef30d51ab87949fb91220783f97d4d4",
+        "previousBlockHash": "000023a2169f138d095294b7c23df837a1f1059b1ae338b5287316f16d64307f"
+    }
+
     mongo.connect(url, function (err, db) {
         console.log(db);
-        db.db('wallet-db').collection("blockchain1").insertOne(block, function (err, result) {
+        db.db('wallet-db').collection("blockchain1").insertOne(example_block2, function (err, result) {
             console.log('inserted');
             assert.equal(null, err);
             d.resolve(result);

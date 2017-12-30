@@ -2,17 +2,25 @@ var express = require('express');
 var r = express.Router();
 var blockRepo = require('../models/blockRepo');
 
-r.get('/', function(req, res) {
-    const data = req.query;
-    // console.log(walletRepo.checkExist(data.id));
-    blockRepo.
-
-    walletRepo.checkExist(data.id).then(function (data){
-
-        res.json(blockRepo.fetchAllBlockchain());
-    });
-
+// get all blocks
+r.get('', function(req, res) {
+    blockRepo.getBlock({}).then(function(data){
+        console.log(data.length);
+        res.json(data);
+    }); 
 });
+
+// get block by hash 
+r.get('/:hash', function(req, res) {
+    var query = {};
+    if (req.params.hash != '') 
+        query = { hash: req.params.hash};
+    blockRepo.getBlock(query).then(function(data){
+        console.log(data.length);
+        res.json(data);
+    }); 
+});
+
 
 r.get('/dashboard', function(req,res) {
 
