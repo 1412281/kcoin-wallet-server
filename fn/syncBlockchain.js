@@ -1,15 +1,19 @@
-const WebSocket = require('ws');
+// const WebSocket = require('ws');
 var block = require('./block');
-var transaction = require('./transaction');
-var db = require('./db_mongodb');
+// var transaction = require('./transaction');
+// var db = require('./db_mongodb');
 
-block.syncBlockchain();
+// Global variable contains 
+var All_Blocks = [];
 
-exports.addBlock = function(data) {
-    console.log('add block', data); //add to db
-    // db.insert({});
-    // db.load({});
+exports.InitAllBlocks = function() {
+    block.syncBlockchain(All_Blocks);
 };
+
+// Get ALL Block 
+exports.GetBlocks = function(){
+	return All_Blocks;
+}
 
 // const ws = new WebSocket('wss://api.kcoin.club');
 // // const ws = new WebSocket('http://localhost:4000/');

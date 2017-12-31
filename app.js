@@ -48,7 +48,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-syncBlockchain.addBlock({});
+syncBlockchain.InitAllBlocks();
+
 
 
 module.exports = app;
