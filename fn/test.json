@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "inputs": [
+    {
+      "referencedOutput": "6d97526dc919784ffabefd21adfffe56ab2384e43e41b085a54f5fd39ee6654c",
+      "referencedOutputIndex": 5,
+      "unlockScript": ""
+    }
+  ],
+  "outputs": [
+    {
+      "value": 9999,
+      "lockScript": "ADD da0214e8d3317edfc1aa6df914d4c14bfd17cc55a10f74ea4b17124006991335"
+    },
+    {
+      "value": 1,
+      "lockScript": "ADD 4edbd2d5a816a52f76a22e554ee0407e969f7c7374e6b3876d1a7aa06609b161"
+    }
+  ]
+}
+
