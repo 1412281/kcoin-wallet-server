@@ -50,26 +50,23 @@ r.post('/login', function(req, res) {
     const data = req.body;
 
     var entity = {
-        id: data.id,
+        email: data.email,
         password: myCrypt(data.password)
     };
-
     walletRepo.login(entity).then(function(rows) {
-        //console.log(rows);
-        if (JSON.stringify(rows)=== JSON.stringify({})) {
+        if (JSON.stringify(rows)=== JSON.stringify([])) {
             res.json({result: 'Login Fail'});
         }
 
         const data = rows;
         const date_exp = Date.now() + 5;
         const zip = {
-            id: data.id,
+            email: data.email,
             date_exp: date_exp
         };
         //console.log(zip);
         const token = createToken(zip);
-        res.json({result: 'Login Successful', id: data.id, date_exp: date_exp, token: token});
-
+        res.json({result: 'Login Successful', email: data.email, date_exp: date_exp, token: token});
     });
 });
 
@@ -138,7 +135,6 @@ var createToken = function(data) {
 
 
 var myCrypt = function(data) {
-    console.log(data);
     return crypto.createHash('sha1').update(data + key2).digest('hex');
 };
 //

@@ -5,16 +5,8 @@ const Collection = 'wallet';
 
 exports.login = function(entity) {
     var d = q.defer();
-
-    var sql = mustache.render(
-        'select * from wallet where id = "{{id}}" and password = "{{password}}"', entity);
-
-    db.load(sql).then(function(rows) {
-        if (rows.length > 0)
-            d.resolve(rows[0]);
-        else {
-            d.resolve({});
-        }
+     db.load(entity, Collection).then(function(data) {
+        d.resolve(data);
     });
 
     return d.promise;
