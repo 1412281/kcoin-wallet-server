@@ -228,54 +228,38 @@ exports.insert = function(data, collection) {
     return d.promise;
 }
 
-exports.update = function(sql) {
+exports.update = function(query, data, collection) {
 
     var d = q.defer();
 
-    var connection = mysql.createConnection({
-        host: _HOST,
-        user: _USER,
-        password: _PWD,
-        database: _DB
+    mongo.connect(url, function (err, db) {
+        console.log(db);
+        db.db('wallet-db').collection(collection).updateOne(query, data, {}, function (result) {
+            console.log('updated');
+            assert.equal(null, err);
+            d.resolve(result);
+            db.close();
+        });
+
     });
-
-    connection.connect();
-
-    connection.query(sql, function(error, value) {
-        if (error) {
-            d.reject(error);
-        } else {
-            d.resolve(value.changedRows);
-        }
-    });
-
-    connection.end();
 
     return d.promise;
 }
 
-exports.delete = function(sql) {
+exports.delete = function(query, collection) {
 
     var d = q.defer();
 
-    var connection = mysql.createConnection({
-        host: _HOST,
-        user: _USER,
-        password: _PWD,
-        database: _DB
+    mongo.connect(url, function (err, db) {
+        console.log(db);
+        db.db('wallet-db').collection(collection).deleteOne(query, {}, function (result) {
+            console.log('deleted');
+            assert.equal(null, err);
+            d.resolve(result);
+            db.close();
+        });
+
     });
-
-    connection.connect();
-
-    connection.query(sql, function(error, value) {
-        if (error) {
-            d.reject(error);
-        } else {
-            d.resolve(value.affectedRows);
-        }
-    });
-
-    connection.end();
 
     return d.promise;
 }
