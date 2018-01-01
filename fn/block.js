@@ -1,13 +1,12 @@
 var axios = require('axios');
 var q = require('q');
 var db = require('./db_mongodb');
-var Blocks = [];
-axios.defaults.baseURL = 'https://api.kcoin.club/';
+var file = require('file-system');
 
-const addBlock = function(data) {
-    console.log('add block', data); //add to db
-    db.insert(data);
-};
+
+var Blocks = require('./blockchain.json');
+
+axios.defaults.baseURL = 'https://api.kcoin.club/';
 
 exports.syncBlockchain = function (All_Blocks) {
     console.log('sync');
@@ -20,10 +19,18 @@ const loopSyncAllBlock = function(offset) {
     getBlocks(offset).then(function (response) {
         if (response.length > 0) {
             response.forEach(function (block){
+
                 Blocks.push(block);
             });
             // console.log(response);
             loopSyncAllBlock(offset + 100);
+        }
+        else {
+            // console.log('write file');
+            //
+            // require('jsonfile').writeFile('./resource/blockchain.json', Blocks, {flag: 'a'}, function (err) {
+            //     console.error(err)
+            // })
         }
     });
 };

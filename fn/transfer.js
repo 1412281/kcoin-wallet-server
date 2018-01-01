@@ -1,7 +1,7 @@
 var axios = require('axios');
 var transactions = require('./transactions');
 
-exports.createTransaction = function (referenceOutput, detinations) {
+exports.createTransfer = function (referenceOutputs, key, destinations) {
 
     var referenceOutputs = [
         {hash: 'd842dfe1270aa63fddd214ce2ffd630f320c79dde6df3c34991dfabfaef363c8', index: 1, value: 1}
@@ -62,18 +62,6 @@ exports.createTransaction = function (referenceOutput, detinations) {
         });
     });
 
-// Sign
-// axios.post('https://utils-kcoin.herokuapp.com/hash/sign', {
-//         transaction:bountyTransaction,
-//         keys: keys
-// }).then(function (response) {
-//     console.log(response.data);
-//
-//
-// }).catch(function (err) {
-//     console.log(err);
-// });
-
 
     transactions.sign(bountyTransaction, keys);
 
@@ -84,10 +72,6 @@ exports.createTransaction = function (referenceOutput, detinations) {
     //     console.log(res.data);
     // });
 
-// transactions.sign(bountyTransaction, keys);
-
-// Write to file then POST https://api.kcoin.club/transactions
-//     console.log(JSON.stringify(bountyTransaction));
 
 // => Hash: 6d97526dc919784ffabefd21adfffe56ab2384e43e41b085a54f5fd39ee6654c
-}
+};

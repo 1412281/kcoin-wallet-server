@@ -1,7 +1,5 @@
 const utils = require('./utils')
 
-const _ = require('lodash');
-
 
 // Convert a transaction to binary format for hashing or checking the size
 var toBinary = function (transaction, withoutUnlockScript) {

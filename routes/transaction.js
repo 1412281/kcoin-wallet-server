@@ -1,18 +1,19 @@
 var express = require('express');
-var transactionRepo = require('../../../Deadline/MyBlockchain - Copy/Server/models/transactionRepo');
+var transactionRepo = require('../models/transactionRepo');
 var r = express.Router();
 var q = require('q');
+var transfer = require('../fn/transfer');
+var block = require('../models/blockRepo');
 
 r.post('/createTransaction', function(req, res) {
     const data = req.body;
-    const date = new Date(Date.now()).toMysqlFormat();
+    const date = new Date(Date.now());
 
     var entity = {
         coin: data.coin,
         wallet_send: data.wallet_send,
         wallet_receive: data.wallet_receive,
         date: date
-
     };
 
     transactionRepo.getBalance(data.wallet_send).then(function (row) {
@@ -59,13 +60,7 @@ r.get('/getRencentTransaction', function(req, res) {
     });
 });
 
-r.get('/getAllTransaction', function(req, res) {
-    const params = req.query;
-    transactionRepo.getAllTrans(params.limit, params.page).then(function(data){
-        res.json(data);
-    });
 
-});
 //
 // r.put('/', function(req, res) {
 //     console.log(req.body);
@@ -82,13 +77,4 @@ r.get('/getAllTransaction', function(req, res) {
 //         res.end('delete fail');
 //     });
 // });
-function twoDigits(d) {
-    if(0 <= d && d < 10) return "0" + d.toString();
-    if(-10 < d && d < 0) return "-0" + (-1*d).toString();
-    return d.toString();
-}
-Date.prototype.toMysqlFormat = function() {
-    return this.getUTCFullYear() + "-" + twoDigits(1 + this.getUTCMonth()) + "-" + twoDigits(this.getUTCDate()) + " " + twoDigits(this.getUTCHours()) + ":" + twoDigits(this.getUTCMinutes()) + ":" + twoDigits(this.getUTCSeconds());
-};
-
 module.exports = r;

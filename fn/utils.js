@@ -22,11 +22,6 @@ var HASH_ALGORITHM = 'sha256';
         return ursa.generatePrivateKey(1024, 65537);
     };
 
-exports.generate = function () {
-    // Same as openssl genrsa -out key-name.pem <modulusBits>
-    return ursa.generatePrivateKey(1024, 65537);
-};
-
 exports.verify = function (message, publicKeyHex, signatureHex) {
         // Create public key form hex
         var publicKey = ursa.createPublicKey(Buffer.from(publicKeyHex, 'hex'));

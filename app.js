@@ -7,10 +7,11 @@ var bodyParser = require('body-parser');
 
 
 var index = require('./routes/index');
-var users = require('./routes/users');
+var user = require('./routes/user');
 var block = require('./routes/block');
+var transaction = require('./routes/transaction');
 var syncBlockchain = require('./fn/syncBlockchain');
-
+// var transfer = require('./fn/transfer');
 
 var app = express();
 
@@ -27,9 +28,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
+app.use('/user', user);
 app.use('/block', block);
-
+app.use('/transactions', transaction);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -48,8 +49,9 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-syncBlockchain.InitAllBlocks();
 
-
+// syncBlockchain.initAllBlocks();
+// syncBlockchain.runListener();
+// transfer.createTransfer();
 
 module.exports = app;

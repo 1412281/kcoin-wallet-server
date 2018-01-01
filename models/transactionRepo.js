@@ -1,25 +1,45 @@
-var mustache = require('mustache'),
-    q = require('q'),
-    db = require('../fn/db');
+var q = require('q'),
+    sync = require('../fn/syncBlockchain'),
+    db = require('../fn/db_mongodb');
 
-exports.getAllTrans = function(limit, page) {
-    var d = q.defer();
+exports.getAllTrans = function(address) {
+    d = q.defer();
 
-    var str_limit = '';
-    if (limit > 0) {
-        str_limit = 'LIMIT ' + (page - 1)*limit + ', '+ limit;
-    }
-    const entity = {
-        str_limit: str_limit
-    };
-    var sql = mustache.render(
-        'select * from transaction order by date desc {{str_limit}}', entity);
-    console.log(sql);
-    db.load(sql).then(function(rows) {
-        console.log(rows);
-        d.resolve(rows);
+    address = "ADD "+ address;
+    var listOutput = [];
+    var ListBlocks = sync.getAllBlocks();
+    //Search in all Blocks in memory
+    console.log(ListBlocks.length);
+    ListBlocks.forEach(function(block){
+        block.transactions.forEach(function(transaction) {
+            for (i=0; i< transaction.outputs.length; i++) {
+                if (transaction.outputs[i].lockScript === address){
+                    // save index output and hash of transaction
+                    listOutput.push({
+                        transaction_hash: transaction.hash,
+                        index: i,
+                        value: transaction.outputs[i].value,
+                        in_use: false
+                    });
+                }
+            }
 
+        });
     });
+    // check in all inputs,
+    listOutput.forEach(function(output) {
+        ListBlocks.forEach(function(block) {
+            block.transactions.forEach(function(transaction) {
+                transaction.inputs.forEach( function (input) {
+                    if (input.referencedOutputHash === output.transaction_hash && input.referencedOutputIndex === output.index) {
+                        output.in_use = true;
+                    }
+                });
+            });
+        });
+    });
+
+    d.resolve(listOutput);
 
     return d.promise;
 };
