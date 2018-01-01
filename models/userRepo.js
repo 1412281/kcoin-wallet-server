@@ -26,3 +26,20 @@ exports.getBalance = function (address) {
     deferred.resolve(Balance);
     return deferred.promise;
 }
+
+exports.updateBabance = function (data) {
+    var d = q.defer();
+
+    const query = {
+        address: data.address
+    }
+    const update = {
+        balance: data.balance
+    }
+
+    db.update(query, update, user).then(function (result) {
+        d.resolve(result);
+    });
+
+    return d.promise;
+}

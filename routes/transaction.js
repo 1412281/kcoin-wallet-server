@@ -4,6 +4,7 @@ var r = express.Router();
 var q = require('q');
 var transfer = require('../fn/transfer');
 var block = require('../models/blockRepo');
+var userRepo = require('../models/userRepo');
 
 r.post('/createTransaction', function(req, res) {
     const data = req.body;
@@ -11,38 +12,51 @@ r.post('/createTransaction', function(req, res) {
 
     var entity = {
         coin: data.coin,
-        wallet_send: data.wallet_send,
-        wallet_receive: data.wallet_receive,
+        address_send: data.address_send,
+        address_receive: data.address_receive,
         date: date
     };
 
-    transactionRepo.getBalance(data.wallet_send).then(function (row) {
+    userRepo.getBalance(data.address_send).then(function (balance) {
+        if (balance > data.coin) {res.end("don't enough coin!");}
+        
         var walletSend = {
-            id: data.wallet_send,
-            balance: +row.balance - +data.coin
+            address: data.address_send,
+            balance: +balance - +data.coin
         };
         console.log(walletSend);
-        transactionRepo.updateWallet(walletSend).then(function (row) {
+        userRepo.updateBabance(walletSend).then(function (result) {
+            userRepo.checkExistInDB(data.address_receive).then(function(result) {
+                if (result) {
+                    userRepo.getBalance(data.address_receive).then(function (balance) {
+                        var walletReceive = {
+                            address: data.address_receive,
+                            balance: +balance + +data.coin
+                        };
+                        console.log(walletReceive);
+                        userRepo.updateBabance(walletReceive).then(function (result) {
+                            transactionRepo.createTransactionInSystem(entity).then(function (result) {
+                                console.log('send successful!');
+                                res.json(result);
+                            }).catch(function (err) {
+                                console.log(err);
+                                res.status(500);
+                            });
 
-            transactionRepo.getBalance(data.wallet_receive).then(function (row) {
-                var walletReceive = {
-                    id: data.wallet_receive,
-                    balance: +row.balance + +data.coin
-                };
-                console.log(walletReceive);
-                transactionRepo.updateWallet(walletReceive).then(function (row) {
 
-
-                    transactionRepo.createTransaction(entity).then(function (row) {
-                        res.json(row.insertId);
+                        });
+                    });
+                }
+                else {
+                    transactionRepo.createTransactionSystemOut(entity).then(function (result) {
+                        res.json(result);
                     }).catch(function (err) {
                         console.log(err);
-                        res.status(400);
+                        res.status(500);
                     });
+                }
+            })
 
-                });
-
-            });
 
         }).fail(function (err) {
             console.log(err);
