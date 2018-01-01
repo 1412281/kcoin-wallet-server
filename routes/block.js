@@ -3,11 +3,8 @@ var r = express.Router();
 var blockRepo = require('../models/blockRepo');
 
 // get all blocks
-r.get('', function(req, res) {
-    blockRepo.getBlock({}).then(function(data){
-        console.log(data.length);
-        res.json(data);
-    }); 
+r.get('/', function(req, res) {
+    return blockRepo.getBlock();
 });
 
 // get block by hash 
@@ -22,7 +19,13 @@ r.get('/:hash', function(req, res) {
 });
 
 // get wallet account balance base on address
-
+r.get('/balance/:address', function(req, res){
+    var address = req.params.address;
+    console.log(address);
+    blockRepo.getBalance(address).then(function(data){
+        res.json(data);
+    });
+});
 
 
 r.get('/dashboard', function(req,res) {

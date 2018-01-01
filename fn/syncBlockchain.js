@@ -17,6 +17,11 @@ exports.getAllBlocks = function(){
 	//return All_Blocks;
 };
 
+// Get ALL Block 
+exports.GetBlocks = function(){
+    return All_Blocks;
+}
+
 exports.runListener = function () {
     const ws = new WebSocket('wss://api.kcoin.club');
 // const ws = new WebSocket('http://localhost:4000/');

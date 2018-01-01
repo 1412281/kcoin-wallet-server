@@ -1,30 +1,51 @@
 var express = require('express');
-var walletRepo = require('../../../Deadline/MyBlockchain - Copy/Server/models/walletRepo');
+var walletRepo = require('../models/walletRepo');
 var r = express.Router();
 var crypto = require('crypto');
+var axios = require('axios');
+axios.defaults.baseURL = 'https://api.kcoin.club/';
 
 const key1 = '!@#1';
 const key2 = '!@#GF$fgdT%@%$45G';
 
 
 r.post('/register', function(req, res) {
-    const data = req.body;
-    const randomKey = Math.random().toString();
-    var entity = {
-        email: data.email,
-        password: myCrypt(data.password),
-        id: myCrypt(data.email + randomKey),
-        balance: 1000
-
-    }
-    walletRepo.register(entity).then(function(data) {
-        res.json({id: entity.id});
-    }).catch(function(err) {
-        console.log(err);
-        res.status(400);
+    //check email if it exists in database
+    walletRepo.checkExist(req.body.email).then(function(data){
+        console.log(data);
+        
+        if (data.length > 0) {
+            res.status(409);
+            res.send('email already exist!');
+        }
+        else {
+            // get publickey, privateKey and Address
+            axios.get('/generate-address')
+                .then(function (response) {
+                    var entity = {
+                        email: req.body.email,
+                        password: myCrypt(req.body.password),
+                        publicKey: response.data.publicKey,
+                        privateKey: response.data.privateKey,
+                        address: response.data.address,
+                        balance: 0,
+                        isActivated: false
+                    }
+                    console.log(entity);
+                    //if not exists , send register to database
+                    walletRepo.register(entity, req.get('host')).then(function(data) {
+                        res.json({id: entity.address});
+                    }).catch(function(err) {
+                        console.log(err);
+                        res.status(400);
+                    });       
+                }).catch(function (err) {
+                        console.log(err);
+                    });
+        }
     });
-
 });
+
 r.post('/login', function(req, res) {
     const data = req.body;
 
@@ -49,6 +70,20 @@ r.post('/login', function(req, res) {
         const token = createToken(zip);
         res.json({result: 'Login Successful', id: data.id, date_exp: date_exp, token: token});
 
+    });
+});
+
+r.get('/existsemail', function(req, res) {
+    const data = req.query;
+    walletRepo.checkExist(data.email).then(function (data){
+        if (data.length > 0){
+            res.status(201);
+            res.send("exists");
+        } else {
+            res.status(200);
+            res.send("Available");
+        }
+        
     });
 });
 

@@ -4,7 +4,8 @@ var db = require('./db_mongodb');
 var file = require('file-system');
 
 
-var Blocks = require('./blockchain.json');
+// var Blocks = require('./blockchain.json');
+var Blocks = [];
 
 axios.defaults.baseURL = 'https://api.kcoin.club/';
 

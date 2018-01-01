@@ -4,11 +4,15 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 
 
 var index = require('./routes/index');
 var user = require('./routes/user');
 var block = require('./routes/block');
+var wallet = require('./routes/wallet');
+var email = require('./routes/email');
+
 var transaction = require('./routes/transaction');
 var syncBlockchain = require('./fn/syncBlockchain');
 // var transfer = require('./fn/transfer');
@@ -21,6 +25,7 @@ app.set('view engine', 'hbs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+app.use(cors());
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -31,6 +36,9 @@ app.use('/', index);
 app.use('/user', user);
 app.use('/block', block);
 app.use('/transactions', transaction);
+app.use('/wallet', wallet);
+app.use('/email', email);
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
@@ -53,5 +61,6 @@ app.use(function(err, req, res, next) {
 // syncBlockchain.initAllBlocks();
 // syncBlockchain.runListener();
 // transfer.createTransfer();
+syncBlockchain.initAllBlocks();
 
 module.exports = app;
