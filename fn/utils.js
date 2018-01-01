@@ -1,40 +1,61 @@
-exports.toBinary = function (transaction, withoutUnlockScript) {
-    var version = Buffer.alloc(4);
-    version.writeUInt32BE(transaction.version);
-    var inputCount = Buffer.alloc(4);
-    inputCount.writeUInt32BE(transaction.inputs.length);
-    var inputs = Buffer.concat(transaction.inputs.map(function(input){
-        // Output transaction hash
-        var outputHash = Buffer.from(input.referencedOutputHash, 'hex');
-        // Output transaction index
-        var outputIndex = Buffer.alloc(4);
-        // Signed may be -1
-        outputIndex.writeInt32BE(input.referencedOutputIndex);
-        var unlockScriptLength = Buffer.alloc(4);
-        // For signing
-        if (!withoutUnlockScript) {
-            // Script length
-            unlockScriptLength.writeUInt32BE(input.unlockScript.length);
-            // Script
-            var unlockScript = Buffer.from(input.unlockScript, 'binary');
-            return Buffer.concat([outputHash, outputIndex, unlockScriptLength, unlockScript]);
-        }
-        // 0 input
-        unlockScriptLength.writeUInt32BE(0);
-        return Buffer.concat([outputHash, outputIndex, unlockScriptLength]);
-    }));
-    var outputCount = Buffer.alloc(4);
-    outputCount.writeUInt32BE(transaction.outputs.length);
-    var outputs = Buffer.concat(transaction.outputs.map(function(output) {
-        // Output value
-        var value = Buffer.alloc(4);
-        value.writeUInt32BE(output.value);
-        // Script length
-        var lockScriptLength = Buffer.alloc(4);
-        lockScriptLength.writeUInt32BE(output.lockScript.length);
-        // Script
-        var lockScript = Buffer.from(output.lockScript);
-        return Buffer.concat([value, lockScriptLength, lockScript]);
-    }));
-    return Buffer.concat([version, inputCount, inputs, outputCount, outputs]);
+var crypto = require('crypto');
+var _ = require('lodash');
+var bitInt = require('big-integer');
+var ursa = require('ursa');
+
+var HASH_ALGORITHM = 'sha256';
+
+    // SHA256 hash
+    var hash = function (data) {
+        var hash = crypto.createHash(HASH_ALGORITHM);
+        hash.update(data);
+        return hash.digest();
+    };
+
+    // Convert hex to big int
+    exports.hexToBigInt = function (hex) {
+        return bitInt(hex, 16);
+    };
+
+    var generateKey = function () {
+        // Same as openssl genrsa -out key-name.pem <modulusBits>
+        return ursa.generatePrivateKey(1024, 65537);
+    };
+
+exports.generate = function () {
+    // Same as openssl genrsa -out key-name.pem <modulusBits>
+    return ursa.generatePrivateKey(1024, 65537);
 };
+
+exports.verify = function (message, publicKeyHex, signatureHex) {
+        // Create public key form hex
+        var publicKey = ursa.createPublicKey(Buffer.from(publicKeyHex, 'hex'));
+        // Create verifier
+        var verifier = ursa.createVerifier(HASH_ALGORITHM);
+        // Push message to verifier
+        verifier.update(message);
+        // Check with public key and signature
+        return verifier.verify(publicKey, signatureHex, 'hex');
+    };
+
+exports.sign = function (message, privateKeyHex) {
+        // Create private key form hex
+        var privateKey = ursa.createPrivateKey(Buffer.from(privateKeyHex, 'hex'));
+        // Create signer
+        var signer = ursa.createSigner(HASH_ALGORITHM);
+        // Push message to verifier
+        signer.update(message);
+        // Sign
+        return signer.sign(privateKey, 'hex');
+    };
+
+exports.generateAddress = function () {
+        var privateKey = generateKey();
+        var publicKey = privateKey.toPublicPem();
+        return {
+            privateKey: privateKey.toPrivatePem('hex'),
+            publicKey: publicKey.toString('hex'),
+            // Address is hash of public key
+            address: hash(publicKey).toString('hex')
+        };
+    };
