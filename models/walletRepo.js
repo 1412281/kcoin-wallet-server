@@ -55,6 +55,24 @@ exports.checkExist = function(email) {
     return deferred.promise;
 };
 
+exports.checkWalletExist = function (address) {
+    var deferred = q.defer();
+
+    db.load(COLLECTION, {address: address}).then(function(data) {
+        console.log(data);
+        if (data.length > 0) {
+            console.log(true);
+            deferred.resolve(true);
+        }
+        else {
+            console.log(false);
+            deferred.resolve(false);
+        }
+    });
+
+    return deferred.promise;
+}
+
 exports.updateWallet = function(email, data) {
     // update base on query and values
     var deferred = q.defer();

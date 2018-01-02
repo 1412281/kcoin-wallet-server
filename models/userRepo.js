@@ -1,6 +1,8 @@
 var q = require('q'),
     transactionRepo = require('./transactionRepo'),
-    db = require('../fn/db_mongodb');
+    db = require('../fn/db_firebase');
+
+const COLLECTION = "user";
 
 
 
@@ -16,7 +18,8 @@ exports.register = function(entity) {
 exports.checkExistInDB = function (address) {
     d = q.defer();
 
-    db.load({address: address}, "wallet").then(function (result) {
+    db.load(COLLECTION, {address: address}).then(function (result) {
+        console.log('check exist', result[0]);
         if (result.length === 0) {
            d.resolve(false);
         }
@@ -24,6 +27,16 @@ exports.checkExistInDB = function (address) {
             d.resolve(true);
         }
     })
+
+    return d.promise;
+}
+
+exports.getInfoByAddress = function (address) {
+    d = q.defer();
+
+    db.load(COLLECTION, {address: address}).then(function (result) {
+            d.resolve(result[0]);
+    });
 
     return d.promise;
 }
@@ -42,17 +55,21 @@ exports.getBalance = function (address) {
     return deferred.promise;
 }
 
-exports.updateBabance = function (data) {
+
+exports.getBalanceUser = function (email) {
     var d = q.defer();
 
-    const query = {
-        address: data.address
-    }
-    const update = {
-        balance: data.balance
-    }
+    db.find(COLLECTION, email).then(function (response) {
+        d.resolve(response.balance);
+    })
 
-    db.update(query, update, user).then(function (result) {
+    return d.promise;
+}
+
+exports.updateBabance = function (email, balance) {
+    var d = q.defer();
+
+    db.update(COLLECTION, email, {balance: parseInt(balance)}).then(function (result) {
         d.resolve(result);
     });
 

@@ -12,39 +12,31 @@ r.post('/createTransaction', function(req, res) {
 
     var entity = {
         coin: data.coin,
-        address_send: data.address_send,
+        email: data.email,
         address_receive: data.address_receive,
         date: date
     };
-
-    userRepo.getBalance(data.address_send).then(function (balance) {
+    console.log(entity);
+    userRepo.getBalanceUser(data.email).then(function (balance) {
         if (balance > data.coin) {res.end("don't enough coin!");}
-        
+
         var walletSend = {
-            address: data.address_send,
+            email: data.email,
             balance: +balance - +data.coin
         };
-        console.log(walletSend);
-        userRepo.updateBabance(walletSend).then(function (result) {
+        userRepo.updateBabance(walletSend.email, walletSend.balance).then(function (result) {
             userRepo.checkExistInDB(data.address_receive).then(function(result) {
-                if (result) {
-                    userRepo.getBalance(data.address_receive).then(function (balance) {
-                        var walletReceive = {
-                            address: data.address_receive,
-                            balance: +balance + +data.coin
-                        };
-                        console.log(walletReceive);
-                        userRepo.updateBabance(walletReceive).then(function (result) {
+                if (result){
+                    userRepo.getInfoByAddress(data.address_receive).then(function (result) {
+                        userRepo.updateBabance(result.email, parseInt(result.balance) + +data.coin).then(function (result) {
                             transactionRepo.createTransactionInSystem(entity).then(function (result) {
                                 console.log('send successful!');
-                                res.json(result);
-                            }).catch(function (err) {
-                                console.log(err);
-                                res.status(500);
-                            });
-
-
+                            res.json(result);
+                        }).catch(function (err) {
+                        console.log(err);
+                        res.status(500);
                         });
+                        })
                     });
                 }
                 else {
@@ -54,9 +46,7 @@ r.post('/createTransaction', function(req, res) {
                         console.log(err);
                         res.status(500);
                     });
-                }
-            })
-
+                }})
 
         }).fail(function (err) {
             console.log(err);

@@ -37,12 +37,12 @@ exports.load = function(collection, query) {
     dbc.get()
         .then(function(snapshot)
         {
-            // var results = [];
-            // snapshot.forEach(function (doc) {
-            //     results.push(doc.data());
-            // })
-            // d.resolve(results);
-            d.resolve(snapshot)
+            var results = [];
+            snapshot.forEach(function (doc) {
+                results.push(doc.data());
+            })
+            d.resolve(results);
+            // d.resolve(snapshot)
         })
         .catch(function(err) {
             console.log('Error getting documents', err);
@@ -52,7 +52,14 @@ exports.load = function(collection, query) {
 
 exports.insert = function(collection, doc, data) {
     var d = q.defer();
-    var dbc = db.collection(collection).doc(doc);
+
+    var dbc;
+    if (doc !== '') {
+        dbc = db.collection(collection).doc(doc);
+    }
+    else {
+        dbc = db.collection(collection).doc();
+    }
     dbc.set(data).then(function (result) {
         // console.log(result);
         d.resolve(result);

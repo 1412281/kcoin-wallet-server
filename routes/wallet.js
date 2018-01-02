@@ -67,7 +67,7 @@ r.post('/login', function(req, res) {
         };
         console.log(zip);
         const token = createToken(zip);
-        res.json({result: 'Login Successful', email: data.email, date_exp: date_exp, token: token});
+        res.json({result: 'Login Successful', email: data.email, address: response.address, date_exp: date_exp, token: token});
     }).catch(function (err) {
         console.log(err);
     });
@@ -87,11 +87,11 @@ r.get('/existsemail', function(req, res) {
     });
 });
 
-r.get('/checkexist', function(req, res) {
+r.get('/checkwalletexist', function(req, res) {
     const data = req.query;
     // console.log(walletRepo.checkExist(data.id));
-    walletRepo.checkExist(data.id).then(function (data){
-
+    walletRepo.checkWalletExist(data.address).then(function (data){
+        console.log(data);
         res.json(data);
     });
 
