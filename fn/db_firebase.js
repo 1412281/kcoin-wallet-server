@@ -91,14 +91,20 @@ exports.delete = function(collection, doc) {
 }
 
 
-var docRef = db.collection('wa').doc('alovelace');
-
-
-
-
-var setAda = docRef.set({
-    first: 'Ada',
-    last: 'Lovelace',
-    born: 1815
-});
+// const db = require('./fn/db_firebase');
+// db.load('users', {adress: '123'}).then(function (res) {
+//     console.log(res);
+// });
+// db.insert('users', '123', {address: '112123s'}).then(function (res) {
+//     console.log(res);
+// })
+// db.update('users', '123' , {name: 'nemmm'}).then(function (res) {
+//     console.log(res);
+// });
+// db.find('users', '123' ).then(function (res) {
+//     console.log(res);
+// })
+// db.delete('users', '123').then(function (res) {
+//     console.log(res);
+// })
 

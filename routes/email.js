@@ -23,25 +23,25 @@ var rand,mailOptions,host,link;
 
 router.get('/verify', function(req, res, next) {
 	//get waiting email corresponding with id number
-	 email.verify(req.query.id).then(function(waiting_email){
+	 email.verify(req.query.address).then(function(waiting_email){
 	 	 console.log(waiting_email);
-	 	 if (waiting_email != '') {
+	 	 if (waiting_email !== '') {
 	 	// update Activated status of email after verify
-	 	let query = {
-	 		email: waiting_email
-	 	};
-	 	let newvalues = {
-	 		$set : {
+
+	 	var newvalues = {
+
 	 			isActivated: true
-	 		}
+
 	 	};
-	 	walletRepo.updateWallet(query, newvalues).then(function(data){
-	 		res.send(data);
+	 	walletRepo.updateWallet(waiting_email, newvalues).then(function(data){
+            res.redirect('http://localhost:3000/login');
 	 	});
 	 } else {
-	 	res.send('error')
-	 }
-	 });	 
+             res.redirect('http://localhost:3000/login');
+
+         }
+	 });
+    res.redirect('http://localhost:3000/login');
 });
 
 module.exports = router;

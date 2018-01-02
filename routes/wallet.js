@@ -21,21 +21,21 @@ r.post('/register', function(req, res) {
         }
         else {
             // get publickey, privateKey and Address
-           var response = utils.generateAddress();
+           var key = utils.generateAddress();
            var entity = {
                         email: req.body.email,
                         password: myCrypt(req.body.password),
-                        publicKey: response.data.publicKey,
-                        privateKey: response.data.privateKey,
-                        address: response.data.address,
+                        publicKey: key.publicKey,
+                        privateKey: key.privateKey,
+                        address: key.address,
                         balance: 0,
                         isActivated: false
                     }
-                    console.log(entity);
+                    // console.log(entity);
                     //if not exists , send register to database
-                    walletRepo.register(entity, req.get('host'))
+                    walletRepo.register(entity)
                     .then(function(data) {
-                        res.json({id: entity.address});
+                        res.json({address: data.address});
                     })
                     .catch(function(err) {
                         console.log(err);
@@ -46,7 +46,9 @@ r.post('/register', function(req, res) {
 });
 
 r.post('/login', function(req, res) {
+
     const data = req.body;
+    console.log(data);
     var entity = {
         address: data.address,
         password: myCrypt(data.password)
@@ -71,7 +73,7 @@ r.post('/login', function(req, res) {
 r.get('/existsemail', function(req, res) {
     const data = req.query;
     walletRepo.checkExist(data.email).then(function (data){
-        if (data.length > 0){
+        if (data){
             res.status(201);
             res.send("exists");
         } else {

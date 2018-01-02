@@ -4,6 +4,7 @@ var nodemailer = require("nodemailer");
 var smtpTransport = require('nodemailer-smtp-transport');
 var os = require("os");
 var q = require('q');
+const HOST = 'localhost:4000';
 const USER = 'tranthienhoang14';
 const PASSWORD = 'malmalmalmal';
 /*
@@ -21,13 +22,12 @@ var rand, mailOptions, link;
 var List_Waiting = [];
 
 exports.sendEmail = function (emailaddress, address, host){
-    rand = Math.floor((Math.random() * 100000) + 54);
     List_Waiting.push({
         waiting_email: emailaddress,
-        verify_number: rand.toString()
+        verify_number: address
     });
-    console.log(List_Waiting);
-    link = "http://"+host+"/email/verify?id="+rand;
+    console.log('List_Waiting: ',List_Waiting);
+    link = "http://"+HOST+"/email/verify?address="+address;
     mailOptions = {
         to : emailaddress,
         subject : "Please confirm your Email account",

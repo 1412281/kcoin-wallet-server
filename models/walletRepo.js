@@ -1,7 +1,10 @@
 var q = require('q'),
-    db = require('../fn/db_mongodb'),
+    db = require('../fn/db_firebase'),
+    utils = require('../fn/utils'),
     email = require('../fn/email');
-const Collection = 'wallet';
+
+const COLLECTION = 'user';
+
 
 exports.login = function(entity) {
     var d = q.defer();
@@ -11,14 +14,16 @@ exports.login = function(entity) {
     return d.promise;
 };
 
-exports.register = function(entity, emailhost) {
+exports.register = function(entity) {
     // insert into wallet(id, password, email, balance)
     var deferred = q.defer();
-    db.insert(entity, Collection).then(function(data) {
+    // console.log(entity);
+
+    db.insert(COLLECTION, entity.email, entity).then(function(res) {
         //send email to confirm email address
-        console.log(data);
-        email.sendEmail(entity.email, data.address, emailhost);
-        deferred.resolve(data);
+        console.log(res);
+        email.sendEmail(entity.email, entity.address);
+        deferred.resolve(data.address);
     });
     return deferred.promise;
 };
@@ -33,17 +38,26 @@ exports.checkExist = function(email) {
     var query = {
         email: email
     }
-    db.load(query, Collection).then(function(data) {
-        deferred.resolve(data);
+    db.find(COLLECTION, email).then(function(data) {
+
+        if (data.email) {
+            console.log(true);
+            deferred.resolve(true);
+        }
+        else {
+            console.log(false);
+            deferred.resolve(false);
+        }
     });
 
     return deferred.promise;
 };
 
-exports.updateWallet = function(myquery, data) {
+exports.updateWallet = function(email, data) {
     // update base on query and values
     var deferred = q.defer();
-    db.update(myquery, data, Collection).then(function(data) {
+    db.update(COLLECTION, email, data).then(function(data) {
+
         deferred.resolve(data);
     });
     return deferred.promise;
