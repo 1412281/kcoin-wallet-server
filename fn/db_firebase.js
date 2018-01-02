@@ -50,6 +50,43 @@ exports.load = function(collection, query) {
     return d.promise;
 }
 
+exports.loadFull = function(collection, query, orderBy, offset, limit) {
+    var d = q.defer();
+
+    var dbc = db.collection(collection);
+    const aAttributes = Object.keys(query);
+
+    aAttributes.forEach(function (att) {
+        dbc = dbc.where(att, '==', query[att]);
+        // console.log(att, '== ', query[att]);
+    });
+    if (orderBy !== '') {
+        dbc = dbc.orderBy(orderBy, 'desc');
+    }
+
+    if (offset !== 0) {
+        dbc = dbc.startAt(offset);
+    }
+
+    if (limit !== 0) {
+        dbc = dbc.limit(limit);
+    }
+
+    dbc.get()
+        .then(function(snapshot)
+        {
+            var results = [];
+            snapshot.forEach(function (doc) {
+                results.push(doc.data());
+            })
+            d.resolve(results);
+            // d.resolve(snapshot)
+        })
+        .catch(function(err) {
+            console.log('Error getting documents', err);
+        });
+    return d.promise;
+}
 exports.insert = function(collection, doc, data) {
     var d = q.defer();
 
