@@ -92,3 +92,14 @@ var getBalance = function(email) {
 
     return d.promise;
 };
+
+exports.getUsersBalance = function (limit, offset) {
+    var d = q.defer();
+    console.log(limit)
+    console.log(offset)
+    db.loadFull(COLLECTION, {}, '', parseInt(offset), parseInt(limit)).then(function(data) {
+            console.log(data);
+            d.resolve(data);
+    });
+    return d.promise;
+}

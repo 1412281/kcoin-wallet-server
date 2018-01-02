@@ -60,13 +60,13 @@ exports.loadFull = function(collection, query, orderBy, offset, limit) {
         dbc = dbc.where(att, '==', query[att]);
         // console.log(att, '== ', query[att]);
     });
-    if (orderBy !== '') {
-        dbc = dbc.orderBy(orderBy, 'desc');
-    }
-
-    if (offset !== 0) {
-        dbc = dbc.startAt(offset);
-    }
+    // if (orderBy !== '') {
+    //     dbc = dbc.orderBy(orderBy, 'desc');
+    // }
+    //
+    // if (offset !== 0) {
+    //     dbc = dbc.startAt(offset);
+    // }
 
     if (limit !== 0) {
         dbc = dbc.limit(limit);
