@@ -12,6 +12,7 @@ var user = require('./routes/user');
 var block = require('./routes/block');
 var wallet = require('./routes/wallet');
 var email = require('./routes/email');
+var admin = require('./routes/admin');
 
 var transaction = require('./routes/transaction');
 var syncBlockchain = require('./fn/syncBlockchain');
@@ -38,6 +39,7 @@ app.use('/block', block);
 app.use('/transaction', transaction);
 app.use('/wallet', wallet);
 app.use('/email', email);
+app.use('/admin', admin);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
