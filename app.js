@@ -61,6 +61,11 @@ app.use(function(err, req, res, next) {
 // syncBlockchain.initAllBlocks();
 // syncBlockchain.runListener();
 // transfer.createTransfer();
-syncBlockchain.initAllBlocks();
+// syncBlockchain.initAllBlocks();
+
+var db = require('./fn/db_firebase');
+db.load({adress: '123', pass: '456'}, 'users').then(function (res) {
+    console.log(res);
+})
 
 module.exports = app;

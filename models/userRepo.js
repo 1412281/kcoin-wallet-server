@@ -13,6 +13,21 @@ exports.register = function(entity) {
     return db.insert(sql);
 }
 
+exports.checkExistInDB = function (address) {
+    d = q.defer();
+
+    db.load({address: address}, "wallet").then(function (result) {
+        if (result.length === 0) {
+           d.resolve(false);
+        }
+        else {
+            d.resolve(true);
+        }
+    })
+
+    return d.promise;
+}
+
 exports.getBalance = function (address) {
     var deferred = q.defer();
     var Balance = 0;
