@@ -50,23 +50,26 @@ r.post('/login', function(req, res) {
     const data = req.body;
     console.log(data);
     var entity = {
-        address: data.address,
+        email: data.email,
         password: myCrypt(data.password)
     };
-    walletRepo.login(entity).then(function(rows) {
-        if (JSON.stringify(rows)=== JSON.stringify([])) {
+    walletRepo.login(entity).then(function(response) {
+        console.log(response);
+        if (JSON.stringify(response)=== JSON.stringify([]) || response.password !== entity.password) {
+
             res.json({result: 'Login Fail'});
         }
-
-        const data = rows;
-        const date_exp = Date.now() + 5;
+        const data = response;
+        const date_exp = Date.now() + 50000;
         const zip = {
-            address: data.address,
+            email: data.email,
             date_exp: date_exp
         };
-        //console.log(zip);
+        console.log(zip);
         const token = createToken(zip);
-        res.json({result: 'Login Successful', address: data.address, date_exp: date_exp, token: token});
+        res.json({result: 'Login Successful', email: data.email, date_exp: date_exp, token: token});
+    }).catch(function (err) {
+        console.log(err);
     });
 });
 
@@ -98,29 +101,30 @@ r.get('/dashboard', function(req,res) {
 
     const data = req.query;
     const zip = {
-        id: data.id,
-        date_exp: parseInt(data.date_exp)
+        email: data.email,
+        date_exp:  parseInt(data.date_exp)
     };
     //console.log(zip);
 
     if (tokenIsAvailable(data.token, zip)) {
         console.log('token correct');
 
-        walletRepo.getDashboard(data.id).then(function (data) {
+        walletRepo.getDashboard(data.email).then(function (data) {
             console.log(data);
             res.json(data);
         });
     } else {
+        console.log(zip);
         console.log('token fail');
         res.end();
     }
 });
 
 var tokenIsAvailable = function(req_token, data) {
-    if (data.date_exp.valueOf() > Date.now()) {
-        console.log('date exp over');
-        return false;
-    }
+    // if (data.date_exp.valueOf() > Date.now()) {
+    //     console.log('date exp over');
+    //     return false;
+    // }
     //console.log(req_token);
     //console.log(createToken(data));
     return req_token === createToken(data);

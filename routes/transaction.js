@@ -69,7 +69,7 @@ r.post('/createTransaction', function(req, res) {
 r.get('/getRencentTransaction', function(req, res) {
     const params = req.query;
     console.log(params);
-    transactionRepo.getRecentTrans(params.id, params.limit, params.page).then(function(data){
+    transactionRepo.getRecentTrans(params.email, params.limit, params.page).then(function(data){
        res.json(data);
     });
 });

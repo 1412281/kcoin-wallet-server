@@ -8,8 +8,10 @@ const COLLECTION = 'user';
 
 exports.login = function(entity) {
     var d = q.defer();
-     db.load(entity, Collection).then(function(data) {
-        d.resolve(data);
+     db.find(COLLECTION, entity.email ).then(function(data) {
+         console.log(data);
+         d.resolve(data);
+
     });
     return d.promise;
 };
@@ -29,8 +31,8 @@ exports.register = function(entity) {
 };
 
 
-exports.getDashboard = function(id) {
-    return q.all([getBalance((id))]);
+exports.getDashboard = function(email) {
+    return q.all([getBalance((email))]);
 };
 
 exports.checkExist = function(email) {
@@ -63,16 +65,11 @@ exports.updateWallet = function(email, data) {
     return deferred.promise;
 };
 
-var getBalance = function(id) {
+var getBalance = function(email) {
     var d = q.defer();
 
-    const entity = {
-        id: id
-    };
-    var sql = mustache.render('select balance from wallet where id = "{{id}}"',entity);
-
-    db.load(sql).then(function(rows) {
-        return d.resolve(rows[0]);
+    db.find(COLLECTION, email).then(function(response) {
+        return d.resolve({balance: response.balance});
     });
 
     return d.promise;
