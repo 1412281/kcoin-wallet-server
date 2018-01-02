@@ -61,6 +61,21 @@ app.use(function(err, req, res, next) {
 // syncBlockchain.initAllBlocks();
 // syncBlockchain.runListener();
 // transfer.createTransfer();
-syncBlockchain.initAllBlocks();
-
+// syncBlockchain.initAllBlocks();
+const db = require('./fn/db_firebase');
+// db.load('users', {adress: '123'}).then(function (res) {
+//     console.log(res);
+// });
+// db.insert('users', '123', {address: '112123s'}).then(function (res) {
+//     console.log(res);
+// })
+// db.update('users', '123' , {name: 'nemmm'}).then(function (res) {
+//     console.log(res);
+// });
+db.find('users', '123' ).then(function (res) {
+    console.log(res);
+})
+// db.delete('users', '123').then(function (res) {
+//     console.log(res);
+// })
 module.exports = app;

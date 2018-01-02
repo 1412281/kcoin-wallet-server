@@ -9,8 +9,21 @@ admin.initializeApp({
 
 var db = admin.firestore();
 
+exports.find = function (collection, doc) {
+    var d = q.defer();
 
-exports.load = function(query, collection) {
+    var dbc = db.collection(collection).doc(doc).get().then(function (doc) {
+        if (doc.exists) {
+            d.resolve(doc.data());
+        }
+        else {
+            d.resolve([]);
+        }
+    });
+    return d.promise;
+};
+
+exports.load = function(collection, query) {
     var d = q.defer();
 
     var dbc = db.collection(collection);
@@ -24,11 +37,12 @@ exports.load = function(query, collection) {
     dbc.get()
         .then(function(snapshot)
         {
-            var results = [];
-            snapshot.forEach(function (doc) {
-                results.push(doc.data());
-            })
-            d.resolve(results);
+            // var results = [];
+            // snapshot.forEach(function (doc) {
+            //     results.push(doc.data());
+            // })
+            // d.resolve(results);
+            d.resolve(snapshot)
         })
         .catch(function(err) {
             console.log('Error getting documents', err);
@@ -36,50 +50,42 @@ exports.load = function(query, collection) {
     return d.promise;
 }
 
-exports.insert = function(data, collection) {
+exports.insert = function(collection, doc, data) {
     var d = q.defer();
-    mongo.connect(url, function (err, db) {
-        console.log(db);
-        db.db(DATABASE).collection(collection).insertOne(data, function (err, result) {
-            console.log('inserted');
-            assert.equal(null, err);
-            d.resolve(result);
-            db.close();
-        })
-    })
-    return d.promise;
-}
-
-exports.update = function(query, data, collection) {
-    var d = q.defer();
-    mongo.connect(url, function (err, db) {
-        console.log(db);
-        db.db(DATABASE).collection(collection).updateOne(query, data, {}, function (result) {
-            console.log('updated');
-            assert.equal(null, err);
-            d.resolve(result);
-            db.close();
-        });
-
+    var dbc = db.collection(collection).doc(doc);
+    dbc.set(data).then(function (result) {
+        // console.log(result);
+        d.resolve(result);
+    }).catch(function (err) {
+        console.log(err);
     });
 
     return d.promise;
 }
 
-exports.delete = function(query, collection) {
+exports.update = function(collection, doc, data) {
+    d = q.defer();
 
-    var d = q.defer();
+    var dbc = db.collection(collection);
+    var db_doc = dbc.doc(doc);
+    db_doc.get().then(function (res) {
+            if (res.exists) {
+                d.resolve(db_doc.update(data));
+            }
+            else {
+                d.resolve("doc is not exists");
 
-    mongo.connect(url, function (err, db) {
-        console.log(db);
-        db.db('wallet-db').collection(collection).deleteOne(query, {}, function (result) {
-            console.log('deleted');
-            assert.equal(null, err);
-            d.resolve(result);
-            db.close();
+            }
         });
+    return d.promise;
+}
 
-    });
+exports.delete = function(collection, doc) {
+
+    d = q.defer();
+
+    var dbc = db.collection(collection).doc(doc);
+    d.resolve(dbc.delete());
 
     return d.promise;
 }
