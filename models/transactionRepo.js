@@ -49,6 +49,7 @@ exports.getAllTrans = function(address) {
 
 exports.createTransactionInSystem = function (entity) {
     d = q.defer();
+    entity.status = 'done';
     console.log('create new transaction ',entity);
     db.insert(COLLECTION, '' , entity).then(function (result) {
         d.resolve(result);
@@ -59,11 +60,32 @@ exports.createTransactionInSystem = function (entity) {
 
 exports.createTransactionSystemOut = function (entity) {
     d = q.defer();
+    entity.status = 'processing';
 
-    db.insert(COLLECTION, entity).then(function (result) {
+    var outputs = findCoinInDB(entity.coin);
+
+    
+
+    db.insert(COLLECTION,'', entity).then(function (result) {
         d.resolve(result);
     });
 
     return d.promise;
 }
 
+var findCoinInDB = function(value) {
+    var result = [];
+    var count = 0;
+    db.load('store', {}).then(function(outputs) {
+        outputs.forEach(function (output) {
+            result.push(output);
+            count += output.value;
+            if (count >= value) {
+                d.resolve(result);
+                return d.promise;
+            }
+        })
+    });
+
+    return d.promise;
+}
