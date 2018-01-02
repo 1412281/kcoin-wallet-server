@@ -1,5 +1,6 @@
 var express = require('express');
 var walletRepo = require('../models/walletRepo');
+var utils = require('../fn/utils');
 var r = express.Router();
 var crypto = require('crypto');
 var axios = require('axios');
@@ -20,9 +21,8 @@ r.post('/register', function(req, res) {
         }
         else {
             // get publickey, privateKey and Address
-            axios.get('/generate-address')
-                .then(function (response) {
-                    var entity = {
+           var response = utils.generateAddress();
+           var entity = {
                         email: req.body.email,
                         password: myCrypt(req.body.password),
                         publicKey: response.data.publicKey,
@@ -33,24 +33,22 @@ r.post('/register', function(req, res) {
                     }
                     console.log(entity);
                     //if not exists , send register to database
-                    walletRepo.register(entity, req.get('host')).then(function(data) {
+                    walletRepo.register(entity, req.get('host'))
+                    .then(function(data) {
                         res.json({id: entity.address});
-                    }).catch(function(err) {
+                    })
+                    .catch(function(err) {
                         console.log(err);
                         res.status(400);
                     });       
-                }).catch(function (err) {
-                        console.log(err);
-                    });
         }
     });
 });
 
 r.post('/login', function(req, res) {
     const data = req.body;
-
     var entity = {
-        email: data.email,
+        address: data.address,
         password: myCrypt(data.password)
     };
     walletRepo.login(entity).then(function(rows) {
@@ -61,12 +59,12 @@ r.post('/login', function(req, res) {
         const data = rows;
         const date_exp = Date.now() + 5;
         const zip = {
-            email: data.email,
+            address: data.address,
             date_exp: date_exp
         };
         //console.log(zip);
         const token = createToken(zip);
-        res.json({result: 'Login Successful', email: data.email, date_exp: date_exp, token: token});
+        res.json({result: 'Login Successful', address: data.address, date_exp: date_exp, token: token});
     });
 });
 

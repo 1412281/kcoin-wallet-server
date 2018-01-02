@@ -20,7 +20,7 @@ var transport = nodemailer.createTransport(smtpTransport({
 var rand, mailOptions, link;
 var List_Waiting = [];
 
-exports.sendEmail = function (emailaddress, host){
+exports.sendEmail = function (emailaddress, address, host){
     rand = Math.floor((Math.random() * 100000) + 54);
     List_Waiting.push({
         waiting_email: emailaddress,
@@ -31,7 +31,7 @@ exports.sendEmail = function (emailaddress, host){
     mailOptions = {
         to : emailaddress,
         subject : "Please confirm your Email account",
-        html : "Hello,<br> Please Click on the link to verify your email.<br><a href="+link+">Click here to verify</a>" 
+        html : "Hello,<br>Your address is <strong>"+address+"<strong> Please Click on the link to verify your email.<br><a href="+link+">Click here to verify</a>" 
     }
     transport.sendMail(mailOptions, function(error, response){
      	if(error){

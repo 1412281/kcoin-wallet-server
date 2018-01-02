@@ -8,7 +8,6 @@ exports.login = function(entity) {
      db.load(entity, Collection).then(function(data) {
         d.resolve(data);
     });
-
     return d.promise;
 };
 
@@ -17,7 +16,8 @@ exports.register = function(entity, emailhost) {
     var deferred = q.defer();
     db.insert(entity, Collection).then(function(data) {
         //send email to confirm email address
-        email.sendEmail(entity.email, emailhost);
+        console.log(data);
+        email.sendEmail(entity.email, data.address, emailhost);
         deferred.resolve(data);
     });
     return deferred.promise;
