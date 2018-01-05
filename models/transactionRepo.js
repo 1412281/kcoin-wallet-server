@@ -64,7 +64,7 @@ exports.createTransactionSystemOut = function (entity) {
 
     var outputs = findCoinInDB(entity.coin);
 
-    
+
 
     db.insert(COLLECTION,'', entity).then(function (result) {
         d.resolve(result);

@@ -98,8 +98,16 @@ exports.getUsersBalance = function (limit, offset) {
     console.log(limit)
     console.log(offset)
     db.loadFull(COLLECTION, {}, '', parseInt(offset), parseInt(limit)).then(function(data) {
-            console.log(data);
-            d.resolve(data);
+        var result = [];
+        data.forEach(function (element) {
+            result.push({
+                email: element.email,
+                balance: element.balance,
+                real_balance: element.balance
+            });
+        });
+        console.log(result);
+        d.resolve(result);
     });
     return d.promise;
 }
