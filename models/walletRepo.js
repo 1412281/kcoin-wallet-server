@@ -111,7 +111,7 @@ exports.getAllUsersBalance = function (limit, cursor) {
                 email: element.email,
                 address: element.address,
                 balance: element.balance,
-                real_balance: element.balance
+                real_balance: element.real_balance
             });
         });
         d.resolve(result);
