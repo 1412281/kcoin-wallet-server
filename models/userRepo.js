@@ -41,6 +41,16 @@ exports.getInfoByAddress = function (address) {
     return d.promise;
 }
 
+exports.getInfoByEmail = function (email) {
+    var d = q.defer();
+
+    db.load(COLLECTION, {email: email}).then(function (response) {
+        d.resolve(response[0]);
+    })
+
+    return d.promise;
+}
+
 exports.getBalance = function (address) {
     var deferred = q.defer();
     var Balance = 0;

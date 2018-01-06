@@ -46,6 +46,22 @@ exports.getAllTrans = function(address) {
     return d.promise;
 };
 
+exports.getRecentTrans = function (email, limit, cursor) {
+    d = q.defer();
+    const query = {
+        where: {
+            email: email
+        },
+        limit: parseInt(limit),
+        cursor: cursor
+    };
+    console.log(query);
+    db.loadFull(COLLECTION, query).then(function (response) {
+        d.resolve(response);
+    });
+    return d.promise;
+};
+
 
 exports.createTransactionInSystem = function (entity) {
     d = q.defer();

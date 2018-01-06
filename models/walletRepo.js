@@ -97,6 +97,7 @@ exports.getUsersBalance = function (limit, offset) {
     var d = q.defer();
     console.log(limit)
     console.log(offset)
+
     db.loadFull(COLLECTION, {}, '', parseInt(offset), parseInt(limit)).then(function(data) {
         var result = [];
         data.forEach(function (element) {

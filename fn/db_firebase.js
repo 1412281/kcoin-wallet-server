@@ -51,65 +51,47 @@ exports.load = function(collection, query) {
 }
 
 exports.loadFull = function(collection, query) {
+
+    console.log('qeeee', query);
+
     var d = q.defer();
 
     var dbc = db.collection(collection);
 
-    const cursor = {};
-    var index;
+    var cursor = {};
 
-    dbc = dbc.orderBy('date', 'asc');
+    if(query.hasOwnProperty('orderBy')) {
+        const aAttributes = Object.keys(query.orderBy);
+        dbc = dbc.orderBy(aAttributes[0], query.orderBy[aAttributes[0]]);
+    }
 
-    if (query.hasOwnProperty('cursor')) {
-        
-        const queryCursor = query.cursor;
-        console.log(queryCursor);
-        if (queryCursor.hasOwnProperty('where')) {
-            cursor.where = queryCursor.where;
-            const aAttributes = Object.keys(queryCursor.where);
-            aAttributes.forEach(function (att) {
-                dbc = dbc.where(att, '==', queryCursor[att]);
-                // console.log(att, '== ', queryCursor[att]);
-            });
+    if (query.hasOwnProperty('where')) {
+        const aAttributes = Object.keys(query.where);
+        aAttributes.forEach(function (att) {
+            dbc = dbc.where(att, '==', query.where[att]);
+            console.log(att, '==', query.where[att]);
+        });
+    }
+
+    if (query.hasOwnProperty('limit')) {
+        const limit = query.limit;
+        dbc = dbc.limit(limit);
+    }
+
+    var tempQuery = query;
+    if (query.hasOwnProperty('cursor') && JSON.stringify(query.cursor) !== JSON.stringify({})) {
+        tempQuery = query.cursor;
+        if (tempQuery.hasOwnProperty('startAt')) {
+            const startAt = tempQuery.startAt;
+            dbc = dbc.startAt(startAt);
         }
-
-        if (queryCursor.hasOwnProperty('startAfter')) {
-            const startAf = queryCursor.startAfter;
+        else
+        if (tempQuery.hasOwnProperty('startAfter')) {
+            const startAf = tempQuery.startAfter;
             dbc = dbc.startAfter(startAf);
             // console.log(startAf);
         }
-        if (queryCursor.hasOwnProperty('limit')) {
-            cursor.limit = queryCursor.limit;
-            const limit = queryCursor.limit;
-            dbc = dbc.limit(limit);
-        }
     }
-    else {
-        if (query.hasOwnProperty('where')) {
-            cursor.where = query.where;
-            const aAttributes = Object.keys(query.where);
-            aAttributes.forEach(function (att) {
-                dbc = dbc.where(att, '==', query[att]);
-                // console.log(att, '== ', query[att]);
-            });
-        }
-
-        if (query.hasOwnProperty('startAt')) {
-            const startAt = query.startAt;
-            dbc = dbc.startAt(startAt);
-        }
-        if (query.hasOwnProperty('startAfter')) {
-            const startAf = query.startAfter;
-            dbc = dbc.startAfter(startAf);
-            console.log(startAf);
-        }
-        if (query.hasOwnProperty('limit')) {
-            cursor.limit = query.limit;
-            const limit = query.limit;
-            dbc = dbc.limit(limit);
-        }
-    }
-
 
     // console.log(att, query.orderBy[att]);
     dbc.get()
@@ -118,11 +100,12 @@ exports.loadFull = function(collection, query) {
             var results = [];
             snapshot.forEach(function (doc) {
                 results.push(doc.data());
-            })
-            // console.log(Object.keys(index)[0]);
-            cursor.startAfter = snapshot.docs[snapshot.docs.length - 1].data().date;
+            });
+            var next = Object.assign({}, cursor);
+            cursor.startAt = snapshot.docs[0].data().date;
+            next.startAfter = snapshot.docs[snapshot.docs.length - 1].data().date;
 
-            d.resolve({data: results, cursor: cursor});
+            d.resolve({data: results, cursor: cursor, next: next});
             // d.resolve(snapshot)
         })
         .catch(function(err) {
