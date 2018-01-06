@@ -66,14 +66,12 @@ app.use(function(err, req, res, next) {
 // syncBlockchain.initAllBlocks();
 const db = require('./fn/db_firebase');
 // db.insert('transaction', '', {asdf: 'asdf'});
-// db.loadFull('transaction', {where:{email:'lamtran2601@gmail.com'}, limit: 2}).then(function (response) {
+// db.loadFull('transaction', {where:{email_send:'lamtran2601@gmail.com'}, orderBy: {'date': 'asc'}, limit: 2}).then(function (response) {
 //     console.log(response.data[0].date);
-//     console.log(response.cursor);
-//     console.log(response.next);
-//     db.loadFull('transaction', {where:{email:'lamtran2601@gmail.com'},limit: 2, cursor: response.next}).then(function (res1) {
+//     db.loadFull('transaction', {where:{email_send:'lamtran2601@gmail.com'}, orderBy: {'date': 'asc'},limit: 2, cursor: response.next}).then(function (res1) {
 //         console.log(res1.data[0].date);
 //         //get previous
-//         db.loadFull('transaction', {where:{email:'lamtran2601@gmail.com'},limit: 2, cursor: response.cursor}).then(function (res2) {
+//         db.loadFull('transaction', {where:{email_send:'lamtran2601@gmail.com'}, orderBy: {'date': 'asc'},limit: 2, cursor: response.cursor}).then(function (res2) {
 //             console.log(res2.data[0].date);
 //
 //         })

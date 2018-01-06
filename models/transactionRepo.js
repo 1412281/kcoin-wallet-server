@@ -2,7 +2,7 @@ var q = require('q'),
     sync = require('../fn/syncBlockchain'),
     db = require('../fn/db_firebase');
 
-const COLLECTION = 'transaction';
+const COLLECTION = 'transactions';
 
 exports.getAllTrans = function(address) {
     d = q.defer();
@@ -50,12 +50,15 @@ exports.getRecentTrans = function (email, limit, cursor) {
     d = q.defer();
     const query = {
         where: {
-            email: email
+            email_send: email
+        },
+        orderBy: {
+            date: 'desc'
         },
         limit: parseInt(limit),
         cursor: cursor
     };
-    console.log(query);
+    // console.log(query);
     db.loadFull(COLLECTION, query).then(function (response) {
         d.resolve(response);
     });

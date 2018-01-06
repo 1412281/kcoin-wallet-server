@@ -52,7 +52,7 @@ exports.load = function(collection, query) {
 
 exports.loadFull = function(collection, query) {
 
-    console.log('qeeee', query);
+    console.log('----LOAD FULL ----', query);
 
     var d = q.defer();
 
@@ -60,16 +60,21 @@ exports.loadFull = function(collection, query) {
 
     var cursor = {};
 
+
     if(query.hasOwnProperty('orderBy')) {
+        // console.log('orrrrrrrrrrrr')
         const aAttributes = Object.keys(query.orderBy);
         dbc = dbc.orderBy(aAttributes[0], query.orderBy[aAttributes[0]]);
+        // console.log(aAttributes[0], query.orderBy[aAttributes[0]]);
+
     }
+
 
     if (query.hasOwnProperty('where')) {
         const aAttributes = Object.keys(query.where);
         aAttributes.forEach(function (att) {
             dbc = dbc.where(att, '==', query.where[att]);
-            console.log(att, '==', query.where[att]);
+            // console.log(att, '==', query.where[att]);
         });
     }
 
@@ -78,18 +83,18 @@ exports.loadFull = function(collection, query) {
         dbc = dbc.limit(limit);
     }
 
-    var tempQuery = query;
-    if (query.hasOwnProperty('cursor') && JSON.stringify(query.cursor) !== JSON.stringify({})) {
-        tempQuery = query.cursor;
+    if (query.hasOwnProperty('cursor')) {
+        const tempQuery = query.cursor;
+
         if (tempQuery.hasOwnProperty('startAt')) {
             const startAt = tempQuery.startAt;
-            dbc = dbc.startAt(startAt);
+            dbc = dbc.startAt(new Date(startAt));
         }
         else
         if (tempQuery.hasOwnProperty('startAfter')) {
             const startAf = tempQuery.startAfter;
-            dbc = dbc.startAfter(startAf);
-            // console.log(startAf);
+            dbc = dbc.startAfter(new Date(startAf));
+            // console.log(new Date(startAf));
         }
     }
 
@@ -98,15 +103,23 @@ exports.loadFull = function(collection, query) {
         .then(function(snapshot)
         {
             var results = [];
-            snapshot.forEach(function (doc) {
-                results.push(doc.data());
-            });
-            var next = Object.assign({}, cursor);
-            cursor.startAt = snapshot.docs[0].data().date;
-            next.startAfter = snapshot.docs[snapshot.docs.length - 1].data().date;
+            if (snapshot.docs[0] !== undefined) {
 
-            d.resolve({data: results, cursor: cursor, next: next});
-            // d.resolve(snapshot)
+
+                snapshot.forEach(function (doc) {
+                    results.push(doc.data());
+                });
+
+                var next = Object.assign({}, cursor);
+                cursor.startAt = snapshot.docs[0].data().date;
+                next.startAfter = snapshot.docs[snapshot.docs.length - 1].data().date;
+
+                d.resolve({data: results, cursor: cursor, next: next});
+                // d.resolve(snapshot)
+            }
+            else {
+                d.resolve({data: []});
+            }
         })
         .catch(function(err) {
             console.log('Error getting documents', err);
