@@ -60,7 +60,7 @@ exports.loadFull = function(collection, query) {
 
     var cursor = {};
 
-
+    //
     if(query.hasOwnProperty('orderBy')) {
         // console.log('orrrrrrrrrrrr')
         const aAttributes = Object.keys(query.orderBy);
@@ -68,7 +68,6 @@ exports.loadFull = function(collection, query) {
         // console.log(aAttributes[0], query.orderBy[aAttributes[0]]);
 
     }
-
 
     if (query.hasOwnProperty('where')) {
         const aAttributes = Object.keys(query.where);
@@ -88,12 +87,12 @@ exports.loadFull = function(collection, query) {
 
         if (tempQuery.hasOwnProperty('startAt')) {
             const startAt = tempQuery.startAt;
-            dbc = dbc.startAt(new Date(startAt));
+            dbc = dbc.startAt(startAt);
         }
         else
         if (tempQuery.hasOwnProperty('startAfter')) {
             const startAf = tempQuery.startAfter;
-            dbc = dbc.startAfter(new Date(startAf));
+            dbc = dbc.startAfter(startAf);
             // console.log(new Date(startAf));
         }
     }
@@ -105,14 +104,16 @@ exports.loadFull = function(collection, query) {
             var results = [];
             if (snapshot.docs[0] !== undefined) {
 
-
+                // console.log(snapshot.docs[0]);
                 snapshot.forEach(function (doc) {
                     results.push(doc.data());
                 });
 
                 var next = Object.assign({}, cursor);
-                cursor.startAt = snapshot.docs[0].data().date;
-                next.startAfter = snapshot.docs[snapshot.docs.length - 1].data().date;
+
+                const order = Object.keys(query.orderBy);
+                cursor.startAt = snapshot.docs[0].data()[order[0]];
+                next.startAfter = snapshot.docs[snapshot.docs.length - 1].data()[order[0]];
 
                 d.resolve({data: results, cursor: cursor, next: next});
                 // d.resolve(snapshot)
