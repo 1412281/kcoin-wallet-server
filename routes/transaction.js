@@ -11,20 +11,20 @@ r.post('/createTransaction', function (req, res) {
     const date = new Date(Date.now());
 
     var entity = {
-        coin: data.coin,
+        coin: data.coin.toString(),
         email_send: data.email,
         address_receive: data.address_receive,
-        date: date
+        date: date.toISOString()
     };
     console.log(entity);
     userRepo.getBalanceUser(data.email).then(function (balance) {
-        if (balance > data.coin) {
+        if (parseInt(balance) < parseInt(data.coin)) {
             res.end("don't enough coin!");
         }
 
         var walletSend = {
             email: data.email,
-            balance: +balance - +data.coin
+            balance: parseInt(balance) - +data.coin
         };
         userRepo.updateBabance(walletSend.email, walletSend.balance).then(function (result) {
             userRepo.checkExistInDB(data.address_receive).then(function (result) {

@@ -6,7 +6,15 @@ var blockRepo = require('../models/blockRepo');
 r.get('/', function(req, res) {
     return blockRepo.getBlock();
 });
+r.get('/getBlocks', function (req, res) {
+    const query = req.query;
+    const limit = parseInt(query.limit);
+    const page = parseInt(query.page);
 
+    const blocks = blockRepo.fetchAllBlockchain().reverse();
+    console.log(blocks.slice(page*limit, page*limit + limit));
+    res.json(blocks.slice(page*limit, page*limit + limit));
+})
 // get block by hash 
 r.get('/:hash', function(req, res) {
     var query = {};

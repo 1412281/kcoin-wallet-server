@@ -79,7 +79,7 @@ exports.getBalanceUser = function (email) {
 exports.updateBabance = function (email, balance) {
     var d = q.defer();
 
-    db.update(COLLECTION, email, {balance: parseInt(balance)}).then(function (result) {
+    db.update(COLLECTION, email, {balance: balance.toString()}).then(function (result) {
         d.resolve(result);
     });
 

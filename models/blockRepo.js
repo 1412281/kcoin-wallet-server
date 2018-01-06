@@ -9,8 +9,8 @@ exports.fetchAllBlockchain = function () {
 }
 
 
-exports.getBlock = function (query) {
-	return Sync.GetBlocks();
+exports.getBlock = function () {
+	return sync.GetBlocks();
 }
 
 exports.getBalance = function (address) {
