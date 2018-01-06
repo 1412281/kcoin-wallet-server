@@ -93,21 +93,27 @@ var getBalance = function(email) {
     return d.promise;
 };
 
-exports.getUsersBalance = function (limit, offset) {
+exports.getAllUsersBalance = function (limit, cursor) {
     var d = q.defer();
     console.log(limit)
-    console.log(offset)
-
-    db.loadFull(COLLECTION, {}, '', parseInt(offset), parseInt(limit)).then(function(data) {
-        var result = [];
-        data.forEach(function (element) {
-            result.push({
+    console.log(cursor)
+    const query = {
+        orderBy: {email: 'desc'}, limit: parseInt(limit), cursor: cursor
+    };
+    db.loadFull(COLLECTION, query).then(function(response) {
+        var result = {
+            users_balance: [],
+            cursor: response.cursor,
+            next: response.next
+        };
+        response.data.forEach(function (element) {
+            result.users_balance.push({
                 email: element.email,
+                address: element.address,
                 balance: element.balance,
                 real_balance: element.balance
             });
         });
-        console.log(result);
         d.resolve(result);
     });
     return d.promise;

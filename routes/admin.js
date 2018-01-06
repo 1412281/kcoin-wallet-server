@@ -41,8 +41,8 @@ router.get('/usersbalance', function(req, res) {
         res.end();
         return;
     }
-    walletRepo.getUsersBalance(data.limit, data.page).then(function(data){
-        console.log(data.length);
+    console.log(data);
+    walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
         res.json(data);
     });
 });
