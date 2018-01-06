@@ -42,8 +42,26 @@ router.get('/usersbalance', function(req, res) {
         return;
     }
     console.log(data);
-    walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
-        res.json(data);
+    walletRepo.getAllUsersBalance(0, {}).then(function(alldata){
+        var totaluser = alldata.users_balance.length
+
+        var total_balance = 0
+        var total_real_balance = 0
+        alldata.users_balance.map( function (t) {
+            total_balance += parseInt(t.balance)
+            total_real_balance += parseInt(t.real_balance)
+        })
+
+        walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
+            res.json({
+                total_user: totaluser,
+                total_balance: total_balance,
+                total_real_balance: total_real_balance,
+               users_balance: data.users_balance,
+               cursor: data.cursor,
+               next: data.next
+            });
+        });
     });
 });
 var tokenIsAvailable = function(req_token, data) {
