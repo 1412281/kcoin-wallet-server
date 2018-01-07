@@ -106,7 +106,7 @@ exports.getRecentTrans = function (email, limit, cursor) {
 
 exports.createTransactionInSystem = function (entity) {
     d = q.defer();
-    entity.status = 'done';
+    entity.status = 'pending';
     console.log('create new transaction ',entity);
     db.insert(COLLECTION, '' , entity).then(function (result) {
         d.resolve(result);
@@ -118,8 +118,9 @@ exports.createTransactionInSystem = function (entity) {
 exports.createTransactionSystemOut = function (entity) {
     entity.status = 'processing';
     entity.coin = parseInt(entity.coin);
-    var d = q.defer();
-
+    var d1 = q.defer();
+    var d2 = q.defer();
+    var d3 = q.defer();
     transfer.getAllOutputCanUseInSystem().then(function (outputs) {
         // console.log(outputs);
         var value = 0;
@@ -131,11 +132,12 @@ exports.createTransactionSystemOut = function (entity) {
             }
         });
         console.log('listOutputWillUse', listOutputWillUse);
-
-        var d1 = q.defer();
-        getKeysOfOutputs(listOutputWillUse).then(function (keys) {
+        d1.resolve(listOutputWillUse);
+    });
+    d1.promise.then(function (listOutputs) {
+        getKeysOfOutputs(listOutputs).then(function (keys) {
             console.log(keys);
-            const referenceOutputs = listOutputWillUse.map(function (output) {
+            const referenceOutputs = listOutputs.map(function (output) {
                 return {
                     hash: output.transaction_hash,
                     value: output.value,
@@ -150,16 +152,18 @@ exports.createTransactionSystemOut = function (entity) {
             });
             console.log(referenceOutputs);
             console.log(destinations);
-            d1.resolve(transfer.createTransfer(referenceOutputs,keys,destinations));
-
+            d2.resolve({referenceOutputs: referenceOutputs, keys: keys, destinations: destinations});
         });
-        d.resolve(d1.promise);
     });
-    //
-    // db.insert(COLLECTION,'', entity).then(function (result) {
-    //     d.resolve(result);
-    // });
-    return d.promise;
+    d2.promise.then(function (transferInfo) {
+        // console.log(transferInfo);
+        transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations).then(function (response) {
+            console.log(response.status);
+            d3.resolve(response);
+        });
+    });
+
+    return d3.promise;
 };
 
 var getKeysOfOutputs = function(outputs) {

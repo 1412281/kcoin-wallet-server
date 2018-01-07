@@ -58,7 +58,7 @@ exports.getAllOutputCanUseInBlockchain = function () {
 
 exports.createTransfer = function (referenceOutputs, keys, destinations) {
 
-
+    console.log('create transfer')
     // var referenceOutputs = [
     //     {hash: 'd842dfe1270aa63fddd214ce2ffd630f320c79dde6df3c34991dfabfaef363c8', index: 1, value: 1}
     // ];

@@ -10,7 +10,6 @@ var db = require('../fn/db_firebase');
 r.post('/createTransaction', function (req, res) {
     const data = req.body;
     const date = new Date(Date.now());
-
     var entity = {
         coin: data.coin.toString(),
         email_send: data.email,
@@ -22,7 +21,6 @@ r.post('/createTransaction', function (req, res) {
         if (parseInt(balance) < parseInt(data.coin)) {
             res.end("don't enough coin!");
         }
-
         var walletSend = {
             email: data.email,
             balance: parseInt(balance) - +data.coin
@@ -33,7 +31,7 @@ r.post('/createTransaction', function (req, res) {
                     userRepo.getInfoByAddress(data.address_receive).then(function (result) {
                         userRepo.updateBabance(result.email, parseInt(result.balance) + +data.coin).then(function (result) {
                             transactionRepo.createTransactionInSystem(entity).then(function (result) {
-                                console.log('send successful!');
+                                // console.log('send successful!');
                                 res.json(result);
                             }).catch(function (err) {
                                 console.log(err);
@@ -43,23 +41,25 @@ r.post('/createTransaction', function (req, res) {
                     });
                 }
                 else {
-                    console.log('send out system');
                     transactionRepo.createTransactionSystemOut(entity).then(function (result) {
-                        res.json(result);
-                        console.log('-------SEND OUT SYSTEM DONE');
+                        console.log('-------SEND OUT SYSTEM---------');
+
                         // console.log(result);
+
+
                         console.log(result.status);
                         console.log(result.data);
                        console.log(result.status === 200);
                        console.log(result.statusText === 'OK');
                         if (result.status === 200 || result.statusText === 'OK') {
-                            console.log('create new transaction out system ',entity);
-
+                            // console.log('create new transaction out system ',entity);
                             deleteOutput(result.data.inputs);
-                            addOutput(result.data);
+                            // addOutput(result.data);
 
-                            db.insert('external_transaction', '', result.data).then(function (result) {
-                                console.log('index ex done');
+                            entity.status = 'pending';
+                            console.log('create new transaction ',entity);
+                            db.insert('transactions', '' , entity).then(function (result) {
+                                res.json(result.data);
                             });
                         }
 
@@ -72,6 +72,7 @@ r.post('/createTransaction', function (req, res) {
 
         }).fail(function (err) {
             console.log(err);
+            res.status(400);
         });
 
     });
@@ -79,7 +80,9 @@ r.post('/createTransaction', function (req, res) {
 
 var deleteOutput = function(inputs) {
     inputs.forEach(function (input) {
-        db.delete('output', input.referencedOutputHash + input.referencedOutputIndex.toString());
+        db.delete('output', input.referencedOutputHash + input.referencedOutputIndex.toString()).then(function (res) {
+            console.log('delete', res);
+        });
     });
 };
 
@@ -87,7 +90,7 @@ var deleteOutput = function(inputs) {
 var addOutput = function(transaction) {
     const outputs = transaction.outputs;
     console.log('Add output');
-    // var exists = [];
+    var exists = [];
     outputs.forEach(function (output, index) {
         var d = q.defer();
 
