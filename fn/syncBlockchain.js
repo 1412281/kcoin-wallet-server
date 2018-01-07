@@ -29,7 +29,10 @@ exports.runListener = function () {
         console.log(socket);
         const data = JSON.parse(socket.data);
         if ( data.type === 'block') {
-            addBlock(data.data);
+            block.addBlock(All_Blocks,data.data);
+        }
+        if (data.type === 'transaction') {
+            //khong quan tam
         }
     };
     setInterval(function () {
@@ -45,15 +48,15 @@ exports.runListener = function () {
         const loss = block.getBlocksSize() > All_Blocks.length;
         if (loss > 0) {
             block.getLossBlock(loss).then(function (lossBlocks) {
-                addBlock(lossBlocks);
+                block.addBlock(All_Blocks,lossBlocks);
             });
         }
     }, 300000);
 };
-
-const addBlock = function (blocks) {
-    console.log('add block', blocks); //add to db
-    // db.insert(data);
-    All_Blocks.push(blocks);
-};
+//
+// const addBlock = function (blocks) {
+//     console.log('add block', blocks); //add to db
+//     // db.insert(data);
+//     All_Blocks.push(blocks);
+// };
 

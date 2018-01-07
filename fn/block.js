@@ -19,10 +19,11 @@ const loopSyncAllBlock = function(offset) {
     console.log(offset);
     getBlocks(offset).then(function (response) {
         if (response.length > 0) {
-            response.forEach(function (block){
-
-                Blocks.push(block);
-            });
+            addBlock(Blocks, response);
+            // response.forEach(function (block){
+            //
+            //     Blocks.push(block);
+            // });
             // console.log(response);
             loopSyncAllBlock(offset + 100);
         }
@@ -84,3 +85,17 @@ exports.getLossBlock = function (loss) {
 
     return d.promise;
 }
+
+exports.addBlock = function (AllBlocks, blocks) {
+    console.log('add block', blocks); //add to db
+    // db.insert(data);
+    AllBlocks.push(blocks);
+};
+
+var addBlock = function (AllBlocks, blocks) {
+    console.log('add block', blocks); //add to db
+    // db.insert(data);
+    blocks.forEach(function (block) {
+        AllBlocks.push(block);
+    })
+};

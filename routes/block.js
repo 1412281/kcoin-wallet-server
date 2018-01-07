@@ -14,6 +14,7 @@ r.get('/getBlocks', function (req, res) {
     const start = limit*page;
 
     const blocks = blockRepo.getAllBlocks().slice(0);
+    // console.log(blocks);
     blocks.reverse();
 
     const blocksSize = blocks.length;
@@ -21,7 +22,8 @@ r.get('/getBlocks', function (req, res) {
         block.height = blocksSize - (start + index);
         return block;
     });
-    console.log();
+    // console.log(result);
+
     res.json(result);
 })
 // get block by hash 
