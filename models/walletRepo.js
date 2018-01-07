@@ -8,7 +8,7 @@ const COLLECTION = 'user';
 
 exports.login = function(entity) {
     var d = q.defer();
-     db.find(COLLECTION, entity.email ).then(function(data) {
+    db.load(COLLECTION, {email: entity.email, isActivated: true}).then(function(data) {
          console.log(data);
          d.resolve(data);
 
@@ -19,13 +19,13 @@ exports.login = function(entity) {
 exports.register = function(entity) {
     // insert into wallet(id, password, email, balance)
     var deferred = q.defer();
-    // console.log(entity);
+    console.log(entity);
 
     db.insert(COLLECTION, entity.email, entity).then(function(res) {
         //send email to confirm email address
         console.log(res);
         email.sendEmail(entity.email, entity.address);
-        deferred.resolve(data.address);
+        deferred.resolve(entity.address);
     });
     return deferred.promise;
 };
