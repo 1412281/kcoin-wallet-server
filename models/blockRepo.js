@@ -25,7 +25,7 @@ exports.getBalance = function (address) {
     address = "ADD "+ address;
     var Balance = 0;
     var listOutput = [];
-    var ListBlocks = sync.GetBlocks();
+    var ListBlocks = sync.GetAllBlocks();
     //Search in all Blocks in memory
     console.log(ListBlocks.length);
 	ListBlocks.forEach(function(block){

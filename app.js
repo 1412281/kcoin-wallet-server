@@ -67,7 +67,8 @@ const transfer = require('./fn/transfer');
 const db = require('./fn/db_firebase');
 //
 syncBlockchain.initAllBlocks().then(function (res) {
-
+    var All_blocks = syncBlockchain.GetAllBlocks()
+    console.log(All_blocks.length)
     console.log('--------GET BLOCKCHAIN DONE--------');
     console.log('--------GET REFERENCE OUTPUT CAN USE OF SYSTEM--------');
     transfer.getAllOutputCanUseInBlockchain().then(function (outputs) {
@@ -82,6 +83,10 @@ syncBlockchain.initAllBlocks().then(function (res) {
         })
     })
     console.log('--------GET EXTERNAL TRANSACTION SEND TO SYSTEM---------');
+    // update all balance of user in system
+    syncBlockchain.ReloadUsersBalance().then(function (result) {
+        console.log(result)
+    })
 
 });
 
