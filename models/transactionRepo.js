@@ -48,6 +48,27 @@ exports.getAllTrans = function(addressInput) {
     return d.promise;
 };
 
+exports.getAllUsersTransaction = function (limit, cursor) {
+    var d = q.defer();
+    console.log(limit)
+    console.log(cursor)
+    const query = {
+        orderBy: {date: 'desc'}, limit: parseInt(limit), cursor: cursor
+    };
+    db.loadFull(COLLECTION, query).then(function(response) {
+        var result = {
+            users_transaction: [],
+            cursor: response.cursor,
+            next: response.next
+        };
+        response.data.forEach(function (element) {
+            result.users_transaction.push(element);
+        });
+        d.resolve(result);
+    });
+    return d.promise;
+}
+
 exports.getPendingTrans = function () {
     d = q.defer();
     const query = {
@@ -60,6 +81,8 @@ exports.getPendingTrans = function () {
     });
     return d.promise;
 };
+
+
 
 exports.getRecentTrans = function (email, limit, cursor) {
     d = q.defer();
