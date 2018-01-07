@@ -15,8 +15,14 @@ r.get('/getBlocks', function (req, res) {
 
     const blocks = blockRepo.getAllBlocks().slice(0);
     // console.log(blocks);
-    blocks.reverse();
-
+    blocks.sort(function (a, b) {
+        if  (a.timestamp > b.timestamp) return -1;
+        else if (a.timestamp < b.timestamp) {
+            return 1;
+        }
+        return 0;
+    });
+    // console.log(blocks);
     const blocksSize = blocks.length;
     var result = blocks.slice(start, start + limit).map(function (block, index) {
         block.height = blocksSize - (start + index);

@@ -16,7 +16,7 @@ exports.register = function(entity) {
 }
 
 exports.checkExistInDB = function (address) {
-    d = q.defer();
+    var d = q.defer();
 
     db.load(COLLECTION, {address: address}).then(function (result) {
         console.log('check exist', result[0]);
@@ -32,9 +32,10 @@ exports.checkExistInDB = function (address) {
 }
 
 exports.getInfoByAddress = function (address) {
-    d = q.defer();
+    var d = q.defer();
 
     db.load(COLLECTION, {address: address}).then(function (result) {
+        // console.log(result);
             d.resolve(result[0]);
     });
 
@@ -53,15 +54,18 @@ exports.getInfoByEmail = function (email) {
 
 exports.getBalance = function (address) {
     var deferred = q.defer();
-    var Balance = 0;
-    var listOutput = transactionRepo.getAllTrans(address);
-    // Calculate Balance base on output list
-    listOutput.forEach(function(output) {
-        if (!output.in_use)
-            Balance+= output.value;
+
+    transactionRepo.getAllTrans(address).then(function (listOutput) {
+        var Balance = 0;
+        listOutput.forEach(function(output) {
+            if (!output.in_use)
+                Balance+= output.value;
+        });
+        console.log(listOutput);
+        deferred.resolve(Balance);
     });
-    console.log(listOutput);
-    deferred.resolve(Balance);
+    // Calculate Balance base on output list
+
     return deferred.promise;
 }
 

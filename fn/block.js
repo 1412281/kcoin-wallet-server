@@ -9,35 +9,9 @@ var Blocks = [];
 
 axios.defaults.baseURL = 'https://api.kcoin.club/';
 
-exports.syncBlockchain = function (All_Blocks) {
-    console.log('sync');
-    Blocks = All_Blocks;
-    loopSyncAllBlock(0);
-};
 
-const loopSyncAllBlock = function(offset) {
+exports.getBlocks = function (offset) {
     console.log(offset);
-    getBlocks(offset).then(function (response) {
-        if (response.length > 0) {
-            addBlock(Blocks, response);
-            // response.forEach(function (block){
-            //
-            //     Blocks.push(block);
-            // });
-            // console.log(response);
-            loopSyncAllBlock(offset + 100);
-        }
-        else {
-            // console.log('write file');
-            //
-            // require('jsonfile').writeFile('./resource/blockchain.json', Blocks, {flag: 'a'}, function (err) {
-            //     console.error(err)
-            // })
-        }
-    });
-};
-
-const getBlocks = function (offset) {
     var d = q.defer();
 
     axios.get('/blocks', {
@@ -86,16 +60,3 @@ exports.getLossBlock = function (loss) {
     return d.promise;
 }
 
-exports.addBlock = function (AllBlocks, blocks) {
-    console.log('add block', blocks); //add to db
-    // db.insert(data);
-    AllBlocks.push(blocks);
-};
-
-var addBlock = function (AllBlocks, blocks) {
-    console.log('add block', blocks); //add to db
-    // db.insert(data);
-    blocks.forEach(function (block) {
-        AllBlocks.push(block);
-    })
-};

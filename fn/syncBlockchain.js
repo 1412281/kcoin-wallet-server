@@ -8,10 +8,19 @@ var block = require('./block');
 var All_Blocks = [];
 
 exports.initAllBlocks = function () {
-    block.syncBlockchain(All_Blocks);
+    return block.getBlocksSize().then(function (length) {
+        for(var i = 0; i < length; i += 100) {
+            block.getBlocks(i).then(function (blocks) {
+                addBlock(All_Blocks, blocks);
+            })
+        }
+    });
 };
 
-
+// exports.GetAllBlocks = function () {
+//     // return All_Blocks;
+//     return require('./blockchain.json')
+// }
 // Get ALL Block 
 exports.GetAllBlocks = function () {
     return All_Blocks;
@@ -53,10 +62,11 @@ exports.runListener = function () {
         }
     }, 300000);
 };
-//
-// const addBlock = function (blocks) {
-//     console.log('add block', blocks); //add to db
-//     // db.insert(data);
-//     All_Blocks.push(blocks);
-// };
 
+var addBlock = function (AllBlocks, blocks) {
+    // console.log('add block', blocks); //add to db
+    // db.insert(data);
+    blocks.forEach(function (block) {
+        AllBlocks.push(block);
+    })
+};

@@ -150,7 +150,7 @@ exports.insert = function(collection, doc, data) {
 }
 
 exports.update = function(collection, doc, data) {
-    d = q.defer();
+    var d = q.defer();
 
     var dbc = db.collection(collection);
     var db_doc = dbc.doc(doc);
@@ -168,9 +168,10 @@ exports.update = function(collection, doc, data) {
 
 exports.delete = function(collection, doc) {
 
-    d = q.defer();
+    var d = q.defer();
 
     var dbc = db.collection(collection).doc(doc);
+    console.log('delete');
     d.resolve(dbc.delete());
 
     return d.promise;

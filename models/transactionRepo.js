@@ -1,23 +1,26 @@
 var q = require('q'),
     sync = require('../fn/syncBlockchain'),
+    transfer = require('../fn/transfer'),
+    userRepo = require('./userRepo'),
     db = require('../fn/db_firebase');
 
 const COLLECTION = 'transactions';
 
-exports.getAllTrans = function(address) {
+exports.getAllTrans = function(addressInput) {
     d = q.defer();
 
-    address = "ADD "+ address;
+    address = "ADD "+ addressInput;
     var listOutput = [];
-    var ListBlocks = sync.getAllBlocks();
+    var ListBlocks = sync.GetAllBlocks();
     //Search in all Blocks in memory
-    console.log(ListBlocks.length);
+    // console.log(ListBlocks.length);
     ListBlocks.forEach(function(block){
         block.transactions.forEach(function(transaction) {
             for (i=0; i< transaction.outputs.length; i++) {
                 if (transaction.outputs[i].lockScript === address){
                     // save index output and hash of transaction
                     listOutput.push({
+                        address: addressInput,
                         transaction_hash: transaction.hash,
                         index: i,
                         value: transaction.outputs[i].value,
@@ -90,33 +93,70 @@ exports.createTransactionInSystem = function (entity) {
 }
 
 exports.createTransactionSystemOut = function (entity) {
-    d = q.defer();
     entity.status = 'processing';
+    entity.coin = parseInt(entity.coin);
+    var d = q.defer();
 
-    var outputs = findCoinInDB(entity.coin);
-
-
-
-    db.insert(COLLECTION,'', entity).then(function (result) {
-        d.resolve(result);
-    });
-
-    return d.promise;
-}
-
-var findCoinInDB = function(value) {
-    var result = [];
-    var count = 0;
-    db.load('store', {}).then(function(outputs) {
+    transfer.getAllOutputCanUseInSystem().then(function (outputs) {
+        // console.log(outputs);
+        var value = 0;
+        var listOutputWillUse = [];
         outputs.forEach(function (output) {
-            result.push(output);
-            count += output.value;
-            if (count >= value) {
-                d.resolve(result);
-                return d.promise;
+            if (value < entity.coin) {
+                listOutputWillUse.push(output);
+                value += output.value;
             }
-        })
+        });
+        console.log('listOutputWillUse', listOutputWillUse);
+
+        var d1 = q.defer();
+        getKeysOfOutputs(listOutputWillUse).then(function (keys) {
+            console.log(keys);
+            const referenceOutputs = listOutputWillUse.map(function (output) {
+                return {
+                    hash: output.transaction_hash,
+                    value: output.value,
+                    index: output.index
+                }
+            });
+            const destinations = [];
+            // console.log(entity);
+            destinations.push({
+                address: entity.address_receive,
+                value: entity.coin
+            });
+            console.log(referenceOutputs);
+            console.log(destinations);
+            d1.resolve(transfer.createTransfer(referenceOutputs,keys,destinations));
+
+        });
+        d.resolve(d1.promise);
+    });
+    //
+    // db.insert(COLLECTION,'', entity).then(function (result) {
+    //     d.resolve(result);
+    // });
+    return d.promise;
+};
+
+var getKeysOfOutputs = function(outputs) {
+
+    var keys = [];
+    outputs.forEach(function (output) {
+        var d1 = q.defer();
+
+        db.load('user', {address: output.address}).then(function (user) {
+            const key = {
+                privateKey: user[0].privateKey,
+                publicKey: user[0].publicKey,
+                address: user[0].address
+            };
+            d1.resolve(key);
+        });
+
+        keys.push(d1.promise);
+
     });
 
-    return d.promise;
+    return q.all(keys);
 }

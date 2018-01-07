@@ -5,6 +5,7 @@ var q = require('q');
 var transfer = require('../fn/transfer');
 var block = require('../models/blockRepo');
 var userRepo = require('../models/userRepo');
+var db = require('../fn/db_firebase');
 
 r.post('/createTransaction', function (req, res) {
     const data = req.body;
@@ -42,10 +43,28 @@ r.post('/createTransaction', function (req, res) {
                     });
                 }
                 else {
+                    console.log('send out system');
                     transactionRepo.createTransactionSystemOut(entity).then(function (result) {
                         res.json(result);
+                        console.log('-------SEND OUT SYSTEM DONE');
+                        // console.log(result);
+                        console.log(result.status);
+                        console.log(result.data);
+                       console.log(result.status === 200);
+                       console.log(result.statusText === 'OK');
+                        if (result.status === 200 || result.statusText === 'OK') {
+                            console.log('create new transaction out system ',entity);
+
+                            deleteOutput(result.data.inputs);
+                            addOutput(result.data);
+
+                            db.insert('external_transaction', '', result.data).then(function (result) {
+                                console.log('index ex done');
+                            });
+                        }
+
                     }).catch(function (err) {
-                        console.log(err);
+                        console.log(err.data);
                         res.status(500);
                     });
                 }
@@ -57,6 +76,44 @@ r.post('/createTransaction', function (req, res) {
 
     });
 });
+
+var deleteOutput = function(inputs) {
+    inputs.forEach(function (input) {
+        db.delete('output', input.referencedOutputHash + input.referencedOutputIndex.toString());
+    });
+};
+
+
+var addOutput = function(transaction) {
+    const outputs = transaction.outputs;
+    console.log('Add output');
+    // var exists = [];
+    outputs.forEach(function (output, index) {
+        var d = q.defer();
+
+        const address = output.lockScript.split(' ')[1];
+        console.log(address);
+        userRepo.checkExistInDB(address).then(function (result) {
+            console.log(address);
+            if (result) {
+                const obj = {
+                    transaction_hash: transaction.hash,
+                    is_use: false,
+                    address: outputs[index].lockScript.split(' ')[1],
+                    value: outputs[index].value,
+                    index: index
+                }
+                db.insert('output', transaction.hash + index.toString(), obj).then(function (res) {
+                    console.log('success')
+                });
+            }
+
+        });
+
+    });
+
+
+};
 
 
 r.post('/getRencentTransaction', function (req, res) {
