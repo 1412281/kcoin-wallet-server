@@ -2,7 +2,7 @@ var q = require('q'),
     sync = require('../fn/syncBlockchain'),
     db = require('../fn/db_firebase');
 
-const COLLECTION = 'transaction';
+const COLLECTION = 'transactions';
 
 exports.getAllTrans = function(address) {
     d = q.defer();
@@ -25,7 +25,6 @@ exports.getAllTrans = function(address) {
                     });
                 }
             }
-
         });
     });
     // check in all inputs,
@@ -43,6 +42,19 @@ exports.getAllTrans = function(address) {
 
     d.resolve(listOutput);
 
+    return d.promise;
+};
+
+exports.getPendingTrans = function () {
+    d = q.defer();
+    const query = {
+        where: {
+            status: 'pending'
+        }
+    };
+    db.loadFull(COLLECTION, query).then(function (response) {
+        d.resolve(response.data);
+    });
     return d.promise;
 };
 
