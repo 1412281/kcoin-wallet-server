@@ -61,7 +61,6 @@ exports.getBalance = function (address) {
             if (!output.in_use)
                 Balance+= output.value;
         });
-        console.log(listOutput);
         deferred.resolve(Balance);
     });
     // Calculate Balance base on output list
@@ -80,10 +79,10 @@ exports.getBalanceUser = function (email) {
     return d.promise;
 }
 
-exports.updateBabance = function (email, balance) {
+exports.updateBabance = function (email, balance, real_balance) {
     var d = q.defer();
 
-    db.update(COLLECTION, email, {balance: balance.toString()}).then(function (result) {
+    db.update(COLLECTION, email, {balance: balance.toString(), real_balance: real_balance}).then(function (result) {
         d.resolve(result);
     });
 
