@@ -13,9 +13,9 @@ const key2 = '!@#GF$fgdT%@%$45G';
 r.post('/register', function(req, res) {
     //check email if it exists in database
     walletRepo.checkExist(req.body.email).then(function(data){
-        console.log('email exists:', data);
-
-        if (data) {
+        console.log(data);
+        
+        if (data.length > 0) {
             res.status(409);
             res.send('email already exist!');
         }
@@ -29,9 +29,9 @@ r.post('/register', function(req, res) {
                         privateKey: key.privateKey,
                         address: key.address,
                         balance: 0,
-                        real_balance: 0,
                         isActivated: false
                     }
+                    // console.log(entity);
                     //if not exists , send register to database
                     walletRepo.register(entity)
                     .then(function(data) {
@@ -40,7 +40,7 @@ r.post('/register', function(req, res) {
                     .catch(function(err) {
                         console.log(err);
                         res.status(400);
-                    });
+                    });       
         }
     });
 });
@@ -55,7 +55,7 @@ r.post('/login', function(req, res) {
     };
     walletRepo.login(entity).then(function(response) {
         console.log(response);
-        if (JSON.stringify(response)=== JSON.stringify([]) || response[0].password !== entity.password) {
+        if (JSON.stringify(response)=== JSON.stringify([]) || response.password !== entity.password) {
 
             res.json({result: 'Login Fail'});
         }
