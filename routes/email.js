@@ -1,25 +1,8 @@
 var express = require('express');
 var router = express.Router();
-var nodemailer = require("nodemailer");
-var smtpTransport = require('nodemailer-smtp-transport');
 var email = require('../fn/email');
 var walletRepo = require('../models/walletRepo');
-const USER = 'tranthienhoang14';
-const PASSWORD = 'malmalmalmal';
-
-/*
-    Here we are configuring our SMTP Server details.
-    STMP is mail server which is responsible for sending and recieving email.
-*/
-var transport = nodemailer.createTransport(smtpTransport({
-    service: 'Gmail',
-    auth:{
-        user: USER,
-        pass: PASSWORD
-    }
-}));	
-
-var rand,mailOptions,host,link;
+const CLIENT_HOST = 'http://localhost:3000'
 
 router.get('/verify', function(req, res, next) {
 	//get waiting email corresponding with id number
@@ -27,21 +10,25 @@ router.get('/verify', function(req, res, next) {
 	 	 console.log(waiting_email);
 	 	 if (waiting_email !== '') {
 	 	// update Activated status of email after verify
-
 	 	var newvalues = {
-
 	 			isActivated: true
-
 	 	};
 	 	walletRepo.updateWallet(waiting_email, newvalues).then(function(data){
-            res.redirect('http://localhost:3000/login');
+            res.redirect(CLIENT_HOST+'/login');
 	 	});
 	 } else {
-             res.redirect('http://localhost:3000/login');
-
+             res.redirect(CLIENT_HOST+'/login');
          }
 	 });
-    res.redirect('http://localhost:3000/login');
+    res.redirect(CLIENT_HOST+'/login');
 });
+
+router.get('/transactionconfirm', function (req, res) {
+	console.log(req.query.hash)
+	email.transactionConfirm(req.query.hash).then(function (data) {
+		if (data)
+			res.send("transaction confirmed")
+    })
+})
 
 module.exports = router;

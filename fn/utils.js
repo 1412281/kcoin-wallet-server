@@ -6,7 +6,7 @@ var ursa = require('ursa');
 var HASH_ALGORITHM = 'sha256';
 
     // SHA256 hash
-    var hash = function (data) {
+    exports.hash = function (data) {
         var hash = crypto.createHash(HASH_ALGORITHM);
         hash.update(data);
         return hash.digest();
