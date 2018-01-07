@@ -60,8 +60,8 @@ app.use(function(err, req, res, next) {
 });
 
 
-// syncBlockchain.initAllBlocks();
-// syncBlockchain.runListener();
+syncBlockchain.initAllBlocks();
+syncBlockchain.runListener();
 // transfer.createTransfer();
 // syncBlockchain.initAllBlocks();
 const db = require('./fn/db_firebase');
@@ -78,11 +78,11 @@ const db = require('./fn/db_firebase');
 //     })
 //
 // });
-
-db.loadFull('user', {orderBy: {email: 'desc'}, limit: 5, cursor: {}}).then(function (response) {
-    console.log(response);
-
-
-});
+//
+// db.loadFull('user', {orderBy: {email: 'desc'}, limit: 5, cursor: {}}).then(function (response) {
+//     console.log(response);
+//
+//
+// });
 
 module.exports = app;

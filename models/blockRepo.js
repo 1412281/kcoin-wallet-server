@@ -4,13 +4,20 @@ var q = require('q'),
     sync = require('../fn/syncBlockchain');
 
 
-exports.fetchAllBlockchain = function () {
-    return sync.getAllBlocks();
+exports.getAllBlocks = function () {
+    return sync.GetAllBlocks();
 }
 
 
-exports.getBlock = function () {
-	return sync.GetBlocks();
+exports.getBlock = function (blockHash) {
+	const blocks = sync.GetAllBlocks();
+	const result = blocks.filter(function (block) {
+		return blockHash === block.hash;
+    });
+	if (result.length > 0) {
+		return result[0];
+	}
+	return {};
 }
 
 exports.getBalance = function (address) {
@@ -24,7 +31,7 @@ exports.getBalance = function (address) {
 	ListBlocks.forEach(function(block){
 		block.transactions.forEach(function(transaction) {
 	    	for (i=0; i< transaction.outputs.length; i++) {
-	    		if (transaction.outputs[i].lockScript == address){
+	    		if (transaction.outputs[i].lockScript === address){
 	    			// save index output and hash of transaction
 	    			listOutput.push({
 	    				transaction_hash: transaction.hash,

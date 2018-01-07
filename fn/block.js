@@ -43,7 +43,7 @@ const getBlocks = function (offset) {
         params: {
             limit: 100,
             offset: offset,
-            order: -1
+            order: 0
         }
     }).then(function (response) {
         d.resolve(response.data);
@@ -66,3 +66,21 @@ exports.getBlocksSize = function () {
 
     return d.promise;
 };
+
+exports.getLossBlock = function (loss) {
+    var d = q.defer();
+
+    axios.get('/blocks', {
+        params: {
+            limit: 100,
+            offset: offset,
+            order: -1
+        }
+    }).then(function (response) {
+        d.resolve(response.data.slice(0, loss));
+    }).catch(function (err) {
+        console.log(err);
+    });
+
+    return d.promise;
+}

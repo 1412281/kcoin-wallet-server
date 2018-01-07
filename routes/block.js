@@ -11,19 +11,25 @@ r.get('/getBlocks', function (req, res) {
     const limit = parseInt(query.limit);
     const page = parseInt(query.page);
 
-    const blocks = blockRepo.fetchAllBlockchain().reverse();
-    console.log(blocks.slice(page*limit, page*limit + limit));
-    res.json(blocks.slice(page*limit, page*limit + limit));
+    const start = limit*page;
+
+    const blocks = blockRepo.getAllBlocks().slice(0);
+    blocks.reverse();
+
+    const blocksSize = blocks.length;
+    var result = blocks.slice(start, start + limit).map(function (block, index) {
+        block.height = blocksSize - (start + index);
+        return block;
+    });
+    console.log();
+    res.json(result);
 })
 // get block by hash 
 r.get('/:hash', function(req, res) {
-    var query = {};
-    if (req.params.hash != '') 
-        query = { hash: req.params.hash};
-    blockRepo.getBlock(query).then(function(data){
-        console.log(data.length);
-        res.json(data);
-    });
+    const blockHash = req.params.hash;
+
+        res.json(blockRepo.getBlock(blockHash));
+
 });
 
 // get wallet account balance base on address

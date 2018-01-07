@@ -7,18 +7,13 @@ var block = require('./block');
 // Global variable contains 
 var All_Blocks = [];
 
-exports.initAllBlocks = function() {
+exports.initAllBlocks = function () {
     block.syncBlockchain(All_Blocks);
 };
 
-// Get ALL Block 
-exports.getAllBlocks = function(){
-	return require('../resource/blockchain.json');
-	//return All_Blocks;
-};
 
 // Get ALL Block 
-exports.GetBlocks = function(){
+exports.GetAllBlocks = function () {
     return All_Blocks;
 }
 
@@ -31,21 +26,34 @@ exports.runListener = function () {
     });
 
     ws.onmessage = function (socket) {
-        console.log(socket.type);
-        addBlock(socket.data);
+        console.log(socket);
+        const data = JSON.parse(socket.data);
+        if ( data.type === 'block') {
+            addBlock(data.data);
+        }
     };
     setInterval(function () {
-    console.log('ping server', Date.now());
+        console.log('ping server', Date.now());
 
+        // transaction.addTransaction({data: 'data'});
+        ws.send('something');
+    }, 30000);
 
-    // transaction.addTransaction({data: 'data'});
-    ws.send('something');
-}, 30000);
+    setInterval(function () {
+        console.log('check blocksize', Date.now());
+
+        const loss = block.getBlocksSize() > All_Blocks.length;
+        if (loss > 0) {
+            block.getLossBlock(loss).then(function (lossBlocks) {
+                addBlock(lossBlocks);
+            });
+        }
+    }, 300000);
 };
 
-const addBlock = function(data) {
-    console.log('add block', data); //add to db
+const addBlock = function (blocks) {
+    console.log('add block', blocks); //add to db
     // db.insert(data);
-    All_Blocks.push(data);
+    All_Blocks.push(blocks);
 };
 
