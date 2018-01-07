@@ -3,6 +3,7 @@ var router = express.Router();
 var crypto = require('crypto');
 var adminRepo = require('../models/adminRepo');
 var walletRepo = require('../models/walletRepo');
+var transactionRepo = require('../models/transactionRepo');
 
 const key1 = '!@#1';
 const key2 = '!@#GF$fgdT%@%$45G';
@@ -58,6 +59,43 @@ router.get('/usersbalance', function(req, res) {
                 total_balance: total_balance,
                 total_real_balance: total_real_balance,
                users_balance: data.users_balance,
+               cursor: data.cursor,
+               next: data.next
+            });
+        });
+    });
+});
+router.get('/userstransaction', function(req, res) {
+    // check token
+    var data = req.query;
+    const zip = {
+        email: data.email,
+        date_exp: parseInt(data.date_exp)
+    };
+    if (!tokenIsAvailable(data.token, zip)){
+        res.status  (403) // forbiden
+        res.end();
+        return;
+    }
+    console.log(data);
+    transactionRepo.getAllUsersTransaction(0, {}).then(function(alldata){
+        var total_transaction = alldata.users_transaction.length
+        var total_status = {
+                pending: 0,
+                processing: 0,
+                done: 0
+        }
+        alldata.users_transaction.map( function (t) {
+            if (t.status == 'pending') total_status.pending ++
+            if (t.status == 'processing') total_status.processing ++
+            if (t.status == 'done') total_status.done ++
+        })
+
+        transactionRepo.getAllUsersTransaction(data.limit, JSON.parse(data.cursor)).then(function(data){
+            res.json({
+                total_transaction: total_transaction,
+                total_status: total_status,
+               users_transaction: data.users_transaction,
                cursor: data.cursor,
                next: data.next
             });
