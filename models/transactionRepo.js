@@ -135,6 +135,7 @@ exports.createTransactionSystemOut = function (entity) {
         d1.resolve(listOutputWillUse);
     });
     d1.promise.then(function (listOutputs) {
+        console.log('get key');
         getKeysOfOutputs(listOutputs).then(function (keys) {
             console.log(keys);
             const referenceOutputs = listOutputs.map(function (output) {

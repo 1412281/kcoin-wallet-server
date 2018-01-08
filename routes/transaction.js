@@ -17,65 +17,83 @@ r.post('/createTransaction', function (req, res) {
         date: date.toISOString()
     };
     console.log(entity);
+    var d1_checkBalanceAndGetWalletSend = q.defer();
+    var d2_checkAddressReceiveInSystem = q.defer();
+    var d3_getInfoReceive = q.defer();
+    var d_updateBalanceUserReceive = q.defer();
+    var d_updateBalanceUserSend = q.defer();
+    var d5 = q.defer();
+
     userRepo.getBalanceUser(data.email).then(function (balance) {
         if (parseInt(balance) < parseInt(data.coin)) {
             res.end("don't enough coin!");
+            d1_checkBalanceAndGetWalletSend.reject();
+            d2_checkAddressReceiveInSystem.reject();
         }
-        var walletSend = {
-            email: data.email,
-            balance: parseInt(balance) - +data.coin
-        };
-        userRepo.updateBabance(walletSend.email, walletSend.balance).then(function (result) {
-            userRepo.checkExistInDB(data.address_receive).then(function (result) {
-                if (result) {
-                    userRepo.getInfoByAddress(data.address_receive).then(function (result) {
-                        userRepo.updateBabance(result.email, parseInt(result.balance) + +data.coin).then(function (result) {
-                            transactionRepo.createTransactionInSystem(entity).then(function (result) {
-                                // console.log('send successful!');
-                                res.json(result);
-                            }).catch(function (err) {
-                                console.log(err);
-                                res.status(500);
-                            });
-                        })
-                    });
-                }
-                else {
-                    transactionRepo.createTransactionSystemOut(entity).then(function (result) {
-                        console.log('-------SEND OUT SYSTEM---------');
-
-                        // console.log(result);
-
-
-                        console.log(result.status);
-                        console.log(result.data);
-                       console.log(result.status === 200);
-                       console.log(result.statusText === 'OK');
-                        if (result.status === 200 || result.statusText === 'OK') {
-                            // console.log('create new transaction out system ',entity);
-                            deleteOutput(result.data.inputs);
-                            // addOutput(result.data);
-
-                            entity.status = 'pending';
-                            console.log('create new transaction ',entity);
-                            db.insert('transactions', '' , entity).then(function (result) {
-                                res.json(result.data);
-                            });
-                        }
-
-                    }).catch(function (err) {
-                        console.log(err.data);
-                        res.status(500);
-                    });
-                }
-            })
-
-        }).fail(function (err) {
-            console.log(err);
-            res.status(400);
-        });
+        else {
+            var walletSend = {
+                email: data.email,
+                balance: parseInt(balance) - +data.coin
+            };
+            d1_checkBalanceAndGetWalletSend.resolve(walletSend);
+        }
 
     });
+
+    d1_checkBalanceAndGetWalletSend.promise.then(function (walletSend) {
+        console.log('have d1_checkBalanceAndGetWalletSend');
+        userRepo.updateBabance(walletSend.email, walletSend.balance).then(function (result) {
+            d_updateBalanceUserSend.resolve(result);
+        });
+        userRepo.checkExistInDB(data.address_receive).then(function (addressReceiveIsInSystem) {
+            d2_checkAddressReceiveInSystem.resolve(addressReceiveIsInSystem);
+        });
+    });
+
+    d2_checkAddressReceiveInSystem.promise.then(function (addressReceiveIsInSystem) {
+        console.log('have d2_checkAddressReceiveInSystem')
+        if (addressReceiveIsInSystem) {
+            userRepo.getInfoByAddress(data.address_receive).then(function (infoAddressReceive) {
+                d3_getInfoReceive.resolve(infoAddressReceive)
+            });
+
+            d3_getInfoReceive.promise.then(function (infoAddressReceive) {
+                userRepo.updateBabance(result.email, parseInt(result.balance) + +data.coin).then(function (result) {
+                    d_updateBalanceUserReceive.resolve(result);
+                })
+            });
+
+            q.all([d_updateBalanceUserSend, d_updateBalanceUserReceive]).then(function (result) {
+                transactionRepo.createTransactionInSystem(entity).then(function (result) {
+                    console.log('send successful in system!');
+                    res.json(result);
+                });
+            });
+        }
+        else {
+            console.log('addressReceiveIs System Out');
+            transactionRepo.createTransactionSystemOut(entity).then(function (result) {
+                console.log('-------SEND OUT SYSTEM---------');
+                console.log(result.status);
+                console.log(result.data);
+                console.log(result.statusText === 'OK');
+                if (result.status === 200 || result.statusText === 'OK') {
+                    deleteOutput(result.data.inputs);
+                    entity.status = 'pending';
+                    console.log('create new transaction ',entity);
+                    db.insert('transactions', '' , entity).then(function (result) {
+                        res.json(result.data);
+                    });
+                }
+
+            }).catch(function (err) {
+                console.log(err.data);
+                res.status(500);
+            });
+        }
+    });
+
+
 });
 
 var deleteOutput = function(inputs) {
