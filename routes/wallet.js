@@ -151,14 +151,25 @@ var myCrypt = function(data) {
 //     })
 // });
 //
-// r.delete('/', function(req, res) {
-//     walletRepo.delete(req.body).then(function(data) {
-//         res.json({ status: 200 });
-//     }).catch(function(err) {
-//         console.log(err);
-//         res.end('delete fail');
-//     });
-// });
-//
+r.post('/deletepending', function(req, res) {
+    var data = req.body
+    console.log(data)
+    const zip = {
+        email: data.email,
+        date_exp:  parseInt(data.date_exp)
+    };
+    if (tokenIsAvailable(data.token, zip) && data.email === data.transaction.email_send ) {
+        console.log('token correct');
+        walletRepo.DeletePendingTransaction(data.transaction).then(function (data) {
+            console.log(data);
+            res.json(data);
+        });
+    } else {
+        console.log(zip);
+        console.log('token fail');
+        res.end();
+    }
+});
+
 
 module.exports = r;
