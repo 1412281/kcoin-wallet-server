@@ -15,7 +15,9 @@ router.post('/login', function(req, res) {
         password: myCrypt(data.password)
     };
     adminRepo.login(entity).then(function(rows) {
-        if (JSON.stringify(rows)=== JSON.stringify({})) {
+        console.log('---asdasdasd-----')
+        console.log(rows)
+        if (JSON.stringify(rows)=== JSON.stringify([])) {
             res.json({result: 'Login Fail'});
         }
         const data = rows;
