@@ -3,6 +3,7 @@ var q = require('q'),
     utils = require('../fn/utils'),
     email = require('../fn/email'),
     transactionRepo = require('./transactionRepo')
+var userRepo = require('../models/userRepo');
 const COLLECTION = 'user';
 
 
@@ -141,7 +142,15 @@ exports.DeletePendingTransaction = function (transaction) {
             var hashDB = transactionRepo.renderTransactionToHashString(element)
             if (hashDB === hashTransaction) {
                 transactionRepo.updateTransactionStatus(hashTransaction, 'cancel').then(function (result) {
-                    d.resolve(result);
+                    // add for balance of user sender
+                    userRepo.getInfoByEmail(element.email_send).then(function (sender) {
+                        console.log(sender)
+                        if(sender) {
+                            userRepo.updateBabance(element.email_send, parseInt(sender.balance)+ parseInt(element.coin)).then(function (result) {
+                                d.resolve(result);
+                            })
+                        }
+                    })
                 })
             }
         })
