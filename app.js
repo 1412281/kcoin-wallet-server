@@ -6,7 +6,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 
-
+var initalServer = require('./fn/initialServer');
 var index = require('./routes/index');
 var user = require('./routes/user');
 var block = require('./routes/block');
@@ -15,7 +15,6 @@ var email = require('./routes/email');
 var admin = require('./routes/admin');
 
 var transaction = require('./routes/transaction');
-var syncBlockchain = require('./fn/syncBlockchain');
 // var transfer = require('./fn/transfer');
 
 var app = express();
@@ -59,46 +58,5 @@ app.use(function (err, req, res, next) {
     res.render('error');
 });
 
-
-// syncBlockchain.runListener();
-// syncBlockchain.initAllBlocks();
-// const transactionRepo = require('./models/transactionRepo');
-const transfer = require('./fn/transfer');
-const db = require('./fn/db_firebase');
-const listener = require('./fn/listener');
-
-
-syncBlockchain.initAllBlocks().then(function (res) {
-    var All_blocks = syncBlockchain.GetAllBlocks()
-    console.log(All_blocks.length)
-    console.log('--------GET BLOCKCHAIN DONE--------');
-    console.log('--------GET REFERENCE OUTPUT CAN USE OF SYSTEM--------');
-    transfer.getAllOutputCanUseInBlockchain().then(function (outputs) {
-        // console.log(outputs);
-        outputs.forEach(function (output) {
-            db.load('output', {transaction_hash: output.transaction_hash}).then(function (res) {
-                if (res.length === 0) {
-                    console.log('inset out');
-                    db.insert('output', output.transaction_hash + output.index, output);
-                }
-            })
-        })
-        //
-        // listener.createOutput().then(function (result) {
-        //     console.log('========CREATE OUTPUT========');
-        //     console.log(result);
-        // });
-    })
-    // console.log('--------GET EXTERNAL TRANSACTION SEND TO SYSTEM---------');
-    // // update all balance of user in system
-    // syncBlockchain.ReloadUSersBalance().then(function (result) {
-    //     console.log(result)
-    // })
-    //
-    // listener.createOutput().then(function (result) {
-    //     console.log(result);
-    // });
-
-});
 
 module.exports = app;

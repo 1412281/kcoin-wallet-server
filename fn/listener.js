@@ -5,17 +5,21 @@ const utils = require('./utils');
 const transfer = require('./transfer');
 
 const COIN_MIN = 1000;
-// exports.initListener = function () {
-//     setInterval(function () {
-//         createOutput();
-//     }, 3000);
-// }
+exports.initListener = function () {
+    setInterval(function () {
+        createOutput();
+    }, 3000);
+
+    setInterval(function () {
+        createTransferWaitingTransaction();
+    }, 10000)
+};
 
 //auto create out put
 //listener transaction is waiting
 
 
-exports.createOutput = function () {
+var createOutput = function () {
     console.log('=======AUTO CREATE OUTPUTS==========');
     var d = q.defer();
     var d_outputOnSystem = q.defer();
@@ -109,6 +113,43 @@ var createAnonymousUser = function () {
         d.resolve(user);
     });
     d.resolve(user.address);
+    return d.promise;
+};
+
+//listener transaction is waiting
+var createTransferWaitingTransaction = function () {
+
+    var d = q.defer();
+    transactionRepo.getTransactionByStatus('waiting').then(function (transactions) {
+        if (transactions.length === 0) {
+            d.reject("DON'T HAVE WAITING TRANSACTION");
+        }
+        var listTransactionDocs = [];
+        transactions.forEach(function(transaction) {
+           listTransactionDocs.push(transactionRepo.renderTransactionToHashString(transaction));
+        });
+        // console.log('d_listTransaction',transactions)
+        var destinations = [];
+        transactions.forEach(function (transaction) {
+            destinations.push({
+                address: transaction.address_receive,
+                value: parseInt(transaction.coin)
+            });
+        });
+        // console.log(destinations);
+        console.log(listTransactionDocs);
+        d.resolve(transactionRepo.createTransactionSystemOut(destinations).then(function (resTransaction) {
+            console.log(resTransaction);
+            transactionRepo.insertNewTransactionToDB(resTransaction.data.hash, {transactions: listTransactionDocs}).then(function(result) {
+                listTransactionDocs.forEach(function (doc) {
+                    transactionRepo.updateTransactionStatus(doc, 'processing');
+
+                });
+            });
+
+        }));
+    });
+
     return d.promise;
 };
 

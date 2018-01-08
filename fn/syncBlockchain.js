@@ -7,6 +7,9 @@ var transactionRepo = require('../models/transactionRepo')
 
 var All_Blocks = [];
 
+const PING_SOCKET_SECOND = 30;
+const CHECK_LENGTH_BLOCK_SECOND = 300;
+
 exports.initAllBlocks = function () {
     var d = q.defer()
     block.getBlocksSize().then(function (length) {
@@ -77,7 +80,7 @@ exports.ReloadUSersBalance = function () {
 }
 
 
-    exports.runListener = function () {
+    exports.runBlockchainListener = function () {
     const ws = new WebSocket('wss://api.kcoin.club');
 // const ws = new WebSocket('http://localhost:4000/');
 
@@ -86,10 +89,15 @@ exports.ReloadUSersBalance = function () {
     });
 
     ws.onmessage = function (socket) {
-        console.log(socket);
+        // console.log(socket);
         const data = JSON.parse(socket.data);
+        console.log(data);
         if ( data.type === 'block') {
-            block.addBlock(All_Blocks,data.data);
+            const block = data.data;
+            addBlock(All_Blocks,block);
+            transactionRepo.checkBlockHasTransactionInSystem(block);
+            //check receive and add to output
+            //
         }
         if (data.type === 'transaction') {
             //khong quan tam
@@ -100,7 +108,7 @@ exports.ReloadUSersBalance = function () {
 
         // transaction.addTransaction({data: 'data'});
         ws.send('something');
-    }, 30000);
+    }, PING_SOCKET_SECOND * 1000);
 
     setInterval(function () {
         console.log('check blocksize', Date.now());
@@ -112,7 +120,7 @@ exports.ReloadUSersBalance = function () {
             });
             CalculateUpdateUsersBalance()
         }
-    }, 300000);
+    }, CHECK_LENGTH_BLOCK_SECOND * 1000);
 };
 
 var addBlock = function (AllBlocks, blocks) {

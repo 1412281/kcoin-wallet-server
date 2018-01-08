@@ -128,26 +128,35 @@ exports.createTransactionInSystem = function (entity) {
 
 exports.createTransactionSystemOut = function (destinations) {
 
+    // console.log('=======create tranasction sys out');
+    // console.log(destinations);
     var d1 = q.defer();
     var d2 = q.defer();
     var d3 = q.defer();
+
+    var sum = 0;
+
+    destinations.forEach(function (des) {
+        sum += des.value;
+    });
+
     transfer.getAllOutputCanUseInSystem().then(function (outputs) {
         // console.log(outputs);
         var value = 0;
         var listOutputWillUse = [];
         outputs.forEach(function (output) {
-            if (value < entity.coin) {
+            if (value < sum) {
                 listOutputWillUse.push(output);
                 value += output.value;
             }
         });
-        console.log('listOutputWillUse', listOutputWillUse);
+        // console.log('listOutputWillUse', listOutputWillUse);
         d1.resolve(listOutputWillUse);
     });
     d1.promise.then(function (listOutputs) {
-        console.log('get key');
-        getKeysOfOutputs(listOutputs).then(function (keys) {
-            console.log(keys);
+        // console.log('get key');
+        userRepo.getKeysOfOutputs(listOutputs).then(function (keys) {
+            // console.log(keys);
             const referenceOutputs = listOutputs.map(function (output) {
                 return {
                     hash: output.transaction_hash,
@@ -155,49 +164,22 @@ exports.createTransactionSystemOut = function (destinations) {
                     index: output.index
                 }
             });
-            const destinations = [];
-            // console.log(entity);
-            destinations.push({
-                address: entity.address_receive,
-                value: entity.coin
-            });
-            console.log(referenceOutputs);
-            console.log(destinations);
+
+            // console.log(referenceOutputs);
+            // console.log(destinations);
             d2.resolve({referenceOutputs: referenceOutputs, keys: keys, destinations: destinations});
         });
     });
     d2.promise.then(function (transferInfo) {
         // console.log(transferInfo);
-        transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations).then(function (response) {
-            console.log(response.status);
-            d3.resolve(response);
-        });
+        d3.resolve(transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations));
+
     });
 
     return d3.promise;
 };
 
-exports.getKeysOfOutputs = function(outputs) {
 
-    var keys = [];
-    outputs.forEach(function (output) {
-        var d1 = q.defer();
-
-        db.load('user', {address: output.address}).then(function (user) {
-            const key = {
-                privateKey: user[0].privateKey,
-                publicKey: user[0].publicKey,
-                address: user[0].address
-            };
-            d1.resolve(key);
-        });
-
-        keys.push(d1.promise);
-
-    });
-
-    return q.all(keys);
-}
 
 exports.updateTransactionStatus = function (transactionDoc, nextStatus) {
         var d = q.defer();
@@ -210,8 +192,48 @@ exports.updateTransactionStatus = function (transactionDoc, nextStatus) {
         return d.promise;
 }
 
+
 exports.renderTransactionToHashString = function (transaction) {
     //hash entity and use it by doc / ID with status = pending
     var string = transaction.email_send+transaction.address_receive+transaction.date+transaction.coin
     return utils.hash(string).toString('hex')
 }
+
+exports.getTransactionByStatus = function (status) {
+
+    return db.load(COLLECTION, {status: status});
+
+};
+
+exports.insertNewTransactionToDB = function (doc, data) {
+    return db.insert('newtransaction', doc, data);
+};
+
+
+
+exports.checkBlockHasTransactionInSystem = function (block) {
+
+    var d_listNewTransaction = q.defer();
+    db.load('newtransaction', {}).then(function (transactions) {
+        d_listNewTransaction.resolve(transactions);
+    });
+
+    d_listNewTransaction.promise.then(function (listNewTransactions) {
+        console.log(listNewTransactions);
+
+        block.transactions.forEach(function (transaction) {
+            listNewTransactions.forEach(function(newTransaction) {
+                if (transaction.hash === newTransaction.hash) {
+                    console.log(transaction);
+                }
+            });
+        });
+        // deleteNewTransactionInDB()
+
+    });
+
+};
+
+var deleteNewTransactionInDB = function (transaction) {
+    return db.delete('newtransaction', transaction.hash);
+};

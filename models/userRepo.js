@@ -89,3 +89,25 @@ exports.updateBabance = function (email, balance) {
 
     return d.promise;
 }
+
+exports.getKeysOfOutputs = function(outputs) {
+
+    var keys = [];
+    outputs.forEach(function (output) {
+        var d1 = q.defer();
+
+        db.load('user', {address: output.address}).then(function (user) {
+            const key = {
+                privateKey: user[0].privateKey,
+                publicKey: user[0].publicKey,
+                address: user[0].address
+            };
+            d1.resolve(key);
+        });
+
+        keys.push(d1.promise);
+
+    });
+
+    return q.all(keys);
+}
