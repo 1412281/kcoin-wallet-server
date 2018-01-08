@@ -96,7 +96,7 @@ exports.getKeysOfOutputs = function(outputs) {
     outputs.forEach(function (output) {
         var d1 = q.defer();
 
-        db.load('user', {address: output.address}).then(function (user) {
+        db.load('key', {address: output.address}).then(function (user) {
             const key = {
                 privateKey: user[0].privateKey,
                 publicKey: user[0].publicKey,

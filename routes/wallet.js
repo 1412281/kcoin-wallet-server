@@ -70,6 +70,7 @@ r.post('/login', function(req, res) {
         console.log(zip);
         const token = createToken(zip);
         res.json({result: 'Login Successful', email: data.email, address: response.address, date_exp: date_exp, token: token});
+        return
     }).catch(function (err) {
         console.log(err);
     });
