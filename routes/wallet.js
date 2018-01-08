@@ -28,7 +28,7 @@ r.post('/register', function(req, res) {
                         publicKey: key.publicKey,
                         privateKey: key.privateKey,
                         address: key.address,
-                        balance: 0,
+                        balance: "",
                         isActivated: false
                     }
                     // console.log(entity);
@@ -55,8 +55,10 @@ r.post('/login', function(req, res) {
     };
     walletRepo.login(entity).then(function(response) {
         console.log(response);
-        if (JSON.stringify(response)=== JSON.stringify([]) || response.password !== entity.password) {
-
+        if (JSON.stringify(response)=== JSON.stringify([])
+            || response.password !== entity.password
+            || response.isActivated === false) {
+            console.log(response.isActivated);
             res.json({result: 'Login Fail'});
         }
         const data = response;

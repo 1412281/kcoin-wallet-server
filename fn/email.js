@@ -113,18 +113,27 @@ exports.transactionConfirm = function (hash) {
             console.log(hashfromDB === hash)
             if (hashfromDB === hash){
                 // update status of element
-                transactionRepo.updateTransactionStatus(hash, 'waiting').then(function (res) {
+                var newStatus = 'done';
+                if (element.system === 'out') {
+                    newStatus = 'waiting';
+                }
+                transactionRepo.updateTransactionStatus(hash, newStatus).then(function (res) {
                     //add balance to receiver
                     //find user email by receive wallet
                     userRepo.getInfoByAddress(element.address_receive).then( function(email_receive){
-                        console.log('--------RECEIVER: ',email_receive)
-                        if (email_receive) {
-                            userRepo.updateBabance(email_receive.email, parseInt(email_receive.balance)+parseInt(element.coin)).then(function (res) {
-                                console.log(res);
-                                d.resolve(res);
-                            })
+                        if (element.system === 'in') {
+                            console.log('--------RECEIVER: ', email_receive)
+                            if (email_receive) {
+                                userRepo.updateBabance(email_receive.email, parseInt(email_receive.balance) + parseInt(element.coin)).then(function (res) {
+                                    console.log(res);
+                                    d.resolve(res);
+                                })
+                            }
+                            else { //address email not exists in database, address outside system
+
+                            }
                         }
-                        else { //address email not exists in database, address outside system
+                        else { // system out
 
                         }
                     });

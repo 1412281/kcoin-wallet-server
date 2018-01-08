@@ -6,6 +6,7 @@ var transfer = require('../fn/transfer');
 var block = require('../models/blockRepo');
 var userRepo = require('../models/userRepo');
 var db = require('../fn/db_firebase');
+var email = require('../fn/email');
 
 r.post('/createTransaction', function (req, res) {
     const data = req.body;
@@ -60,6 +61,7 @@ r.post('/createTransaction', function (req, res) {
             });
             q.all([d_updateBalanceUserSend, d3_createTransactionInSystem]).then(function (result) {
                 console.log('send successful in system!');
+                email.sendEmailTransactionConfirm(entity);
                 res.json(result);
             });
         }
@@ -71,6 +73,7 @@ r.post('/createTransaction', function (req, res) {
             });
 
             q.all([d_updateBalanceUserSend, d3_createTransactionInSystem]).promise.then(function (result) {
+
                 res.json(result);
             })
             // transactionRepo.createTransactionSystemOut(entity).then(function (result) {
