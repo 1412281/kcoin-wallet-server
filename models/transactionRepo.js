@@ -4,6 +4,8 @@ var q = require('q'),
     userRepo = require('./userRepo'),
     db = require('../fn/db_firebase');
 
+    var utils = require('../fn/utils');
+
 const COLLECTION = 'transactions';
 
 exports.getAllTrans = function(addressInput) {
@@ -74,6 +76,9 @@ exports.getPendingTrans = function () {
     const query = {
         where: {
             status: 'pending'
+        },
+        orderBy:{
+            email_send: 'desc'
         }
     };
     db.loadFull(COLLECTION, query).then(function (response) {
@@ -107,10 +112,16 @@ exports.getRecentTrans = function (email, limit, cursor) {
 exports.createTransactionInSystem = function (entity) {
     d = q.defer();
     entity.status = 'pending';
-    console.log('create new transaction ',entity);
-    db.insert(COLLECTION, '' , entity).then(function (result) {
+    console.log('--------------------------------------------------------------create new transaction ',entity);
+    //hash entity and use it by doc / ID with status = pending
+    console.log('Hash DOC of new transaction: ',hashfromDB)
+    var str = entity.email_send +entity.address_receive + entity.date + entity.coin
+    console.log(str)
+    var hashfromDB = utils.hash(str).toString('hex')
+    console.log(hashfromDB)
+    db.insert(COLLECTION, hashfromDB, entity).then(function (result) {
         d.resolve(result);
-    });
+    })
 
     return d.promise;
 }
@@ -187,4 +198,21 @@ var getKeysOfOutputs = function(outputs) {
     });
 
     return q.all(keys);
+}
+
+exports.updateTransactionStatus = function (transactionDoc, nextStatus) {
+        var d = q.defer();
+
+        db.update(COLLECTION, transactionDoc, {status: nextStatus}).then(function (result) {
+            console.log('updated', result)
+            d.resolve(result);
+        });
+
+        return d.promise;
+}
+
+exports.renderTransactionToHashString = function (transaction) {
+    //hash entity and use it by doc / ID with status = pending
+    var string = transaction.email_send+transaction.address_receive+transaction.date+transaction.coin
+    return utils.hash(string).toString('hex')
 }

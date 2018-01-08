@@ -1,6 +1,8 @@
 var nodemailer = require("nodemailer");
 var smtpTransport = require('nodemailer-smtp-transport');
 var transactionRepo = require('../models/transactionRepo');
+var walletRepo = require('../models/walletRepo');
+var userRepo = require('../models/userRepo');
 var q = require('q');
 var ultis = require('./utils');
 const HOST = 'localhost:4000';
@@ -61,7 +63,8 @@ const renderHTML_TransactionConfirm = function (content, link ) {
 
 exports.sendEmailTransactionConfirm = function (transaction){
     // hash transaction content
-    var hash = ultis.hash(JSON.stringify(transaction)).toString('hex')
+    var hash = transactionRepo.renderTransactionToHashString(transaction)
+    console.log('sent:'+hash)
     link = "http://"+HOST+"/email/transactionconfirm?hash="+hash;
     mailOptions = {
         to : transaction.email_send,
@@ -97,6 +100,7 @@ exports.verify = function(verify_num){
 exports.transactionConfirm = function (hash) {
     var d = q.defer();
     transactionRepo.getPendingTrans().then( function (listpending) {
+        console.log(listpending)
         if (listpending.length == 0) {
             d.resolve('confirm fail')
         }
@@ -104,14 +108,32 @@ exports.transactionConfirm = function (hash) {
         // if equal, update this transaction element
         listpending.map(function (element) {
             console.log('pending')
-            var hashfromDB = ultis.hash(JSON.stringify(element)).toString('hex')
+            var hashfromDB = transactionRepo.renderTransactionToHashString(element)
+            console.log('getHashFromDB:'+hashfromDB)
+            console.log(hashfromDB === hash)
             if (hashfromDB === hash){
                 // update status of element
-                // transactionRepo.
-                d.resolve(element)
+                transactionRepo.updateTransactionStatus(hash, 'waiting').then(function (res) {
+                    //add balance to receiver
+                    //find user email by receive wallet
+                    userRepo.getInfoByAddress(element.address_receive).then( function(email_receive){
+                        console.log('--------RECEIVER: ',email_receive)
+                        if (email_receive) {
+                            userRepo.updateBabance(email_receive.email, parseInt(email_receive.balance)+parseInt(element.coin)).then(function (res) {
+                                console.log(res);
+                                d.resolve(res);
+                            })
+                        }
+                        else { //address email not exists in database, address outside system
+
+                        }
+                    });
+
+                })
             }
         })
     })
 
     return d.promise;
 }
+

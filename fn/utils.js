@@ -5,12 +5,19 @@ var ursa = require('ursa');
 
 var HASH_ALGORITHM = 'sha256';
 
+
     // SHA256 hash
-    exports.hash = function (data) {
-        var hash = crypto.createHash(HASH_ALGORITHM);
-        hash.update(data);
-        return hash.digest();
-    };
+var hash = function (data) {
+    var hash = crypto.createHash(HASH_ALGORITHM);
+    hash.update(data);
+    return hash.digest();
+};
+
+exports.hash = function (data) {
+    var hash = crypto.createHash(HASH_ALGORITHM);
+    hash.update(data);
+    return hash.digest();
+};
 
     // Convert hex to big int
     exports.hexToBigInt = function (hex) {
@@ -54,3 +61,5 @@ exports.generateAddress = function () {
             address: hash(publicKey).toString('hex')
         };
     };
+
+

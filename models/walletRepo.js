@@ -83,6 +83,16 @@ exports.updateWallet = function(email, data) {
     return deferred.promise;
 };
 
+exports.updateBalanceByAddress = function(email, data) {
+    // update base on query and values
+    var deferred = q.defer();
+    db.update(COLLECTION, email, data).then(function(data) {
+
+        deferred.resolve(data);
+    });
+    return deferred.promise;
+};
+
 var getBalance = function(email) {
     var d = q.defer();
 
