@@ -13,7 +13,7 @@ exports.initListener = function () {
 
     setInterval(function () {
         createTransferWaitingTransaction();
-    }, 10000)
+    }, 30000)
 };
 
 //auto create out put

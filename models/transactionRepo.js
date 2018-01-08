@@ -266,7 +266,7 @@ exports.checkBlockHasAddressReceiveInSystem = function (block) {
                 listOutputs.forEach(function (output) {
                     const address = output.lockScript.split(' ')[1];
                     if (user[0].address === address) {
-                        userRepo.updateBabance(user[0].email, parseInt(user[0].balance) + output.value);
+                        userRepo.updateBabance(user[0].email, parseInt(parseInt(user[0].balance) + parseInt(output.value)));
                     }
                 })
                 //

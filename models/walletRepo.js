@@ -40,10 +40,11 @@ exports.register = function(entity) {
         }
         db.insert('key', entity.address, key).then(function (res) {
             //send email to confirm email address
-            console.log(res);
-            email.sendEmail(entity.email, entity.address);
-            deferred.resolve(entity.address);
+
         })
+        console.log(res);
+        email.sendEmail(entity.email, entity.address);
+        deferred.resolve(entity.address);
 
     });
     return deferred.promise;

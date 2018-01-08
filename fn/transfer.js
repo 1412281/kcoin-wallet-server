@@ -16,12 +16,12 @@ exports.getAllOutputCanUseInBlockchain = function () {
 
     var d1 = q.defer();
 
-        db.load('user', {}).then(function (users) {
+        db.load('key', {}).then(function (keys) {
 
             var promises = [];
 
-            const listAddress = users.map(function (user) {
-                return user.address;
+            const listAddress = keys.map(function (key) {
+                return key.address;
             });
             // console.log(listAddress);
 

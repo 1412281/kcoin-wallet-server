@@ -67,9 +67,9 @@ var CalculateUpdateUsersBalance = function () {
                     })
                     console.log('---------------3. total:', Total_Balance, ' ======', Total_Real_Balance)
                     // // update 2 above balance in database
-                    // userRepo.updateBabance(user.email, Total_Balance, Total_Real_Balance).then(function (result) {
-                    //     console.log('---------------4. updated', user.email, result)
-                    // })
+                    userRepo.updateBabance(user.email, Total_Balance, Total_Real_Balance).then(function (result) {
+                        console.log('---------------4. updated', user.email, result)
+                    })
                 });
             })
         })

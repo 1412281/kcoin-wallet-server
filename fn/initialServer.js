@@ -49,4 +49,3 @@ var deleteAllOutputCurrent = function () {
         })
     })
 }
-
