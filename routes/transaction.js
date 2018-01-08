@@ -20,9 +20,7 @@ r.post('/createTransaction', function (req, res) {
     var d1_checkBalanceAndGetWalletSend = q.defer();
     var d2_checkAddressReceiveInSystem = q.defer();
     var d3_getInfoReceive = q.defer();
-    var d_updateBalanceUserReceive = q.defer();
     var d_updateBalanceUserSend = q.defer();
-    var d5 = q.defer();
 
     userRepo.getBalanceUser(data.email).then(function (balance) {
         if (parseInt(balance) < parseInt(data.coin)) {
@@ -51,19 +49,13 @@ r.post('/createTransaction', function (req, res) {
     });
 
     d2_checkAddressReceiveInSystem.promise.then(function (addressReceiveIsInSystem) {
-        console.log('have d2_checkAddressReceiveInSystem')
+        console.log('have d2_checkAddressReceiveInSystem');
         if (addressReceiveIsInSystem) {
             userRepo.getInfoByAddress(data.address_receive).then(function (infoAddressReceive) {
                 d3_getInfoReceive.resolve(infoAddressReceive)
             });
 
-            d3_getInfoReceive.promise.then(function (infoAddressReceive) {
-                userRepo.updateBabance(result.email, parseInt(result.balance) + +data.coin).then(function (result) {
-                    d_updateBalanceUserReceive.resolve(result);
-                })
-            });
-
-            q.all([d_updateBalanceUserSend, d_updateBalanceUserReceive]).then(function (result) {
+            q.all([d_updateBalanceUserSend, d3_getInfoReceive]).then(function (result) {
                 transactionRepo.createTransactionInSystem(entity).then(function (result) {
                     console.log('send successful in system!');
                     res.json(result);
