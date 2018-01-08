@@ -11,7 +11,11 @@ var HASH_ALGORITHM = 'sha256';
         hash.update(data);
         return hash.digest();
     };
-
+var hash = function (data) {
+    var hash = crypto.createHash(HASH_ALGORITHM);
+    hash.update(data);
+    return hash.digest();
+};
     // Convert hex to big int
     exports.hexToBigInt = function (hex) {
         return bitInt(hex, 16);

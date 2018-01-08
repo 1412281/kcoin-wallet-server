@@ -54,6 +54,7 @@ r.post('/createTransaction', function (req, res) {
             // userRepo.getInfoByAddress(data.address_receive).then(function (infoAddressReceive) {
             //     d3_getInfoReceive.resolve(infoAddressReceive)
             // });
+            entity.system = 'in';
             transactionRepo.createTransactionInSystem(entity).then(function (result) {
                 d3_createTransactionInSystem.resolve(result);
             });
@@ -64,24 +65,26 @@ r.post('/createTransaction', function (req, res) {
         }
         else {
             console.log('addressReceiveIs System Out');
-            transactionRepo.createTransactionSystemOut(entity).then(function (result) {
-                console.log('-------SEND OUT SYSTEM---------');
-                console.log(result.status);
-                console.log(result.data);
-                console.log(result.statusText === 'OK');
-                if (result.status === 200 || result.statusText === 'OK') {
-                    deleteOutput(result.data.inputs);
-                    entity.status = 'pending';
-                    console.log('create new transaction ',entity);
-                    db.insert('transactions', '' , entity).then(function (result) {
-                        res.json(result.data);
-                    });
-                }
-
-            }).catch(function (err) {
-                console.log(err.data);
-                res.status(500);
+            entity.system = 'out';
+            transactionRepo.createTransactionInSystem(entity).then(function (result) {
+                d3_createTransactionInSystem.resolve(result);
             });
+
+            q.all([d_updateBalanceUserSend, d3_createTransactionInSystem]).promise.then(function (result) {
+                res.json(result);
+            })
+            // transactionRepo.createTransactionSystemOut(entity).then(function (result) {
+            //     console.log('-------SEND OUT SYSTEM---------');
+            //     console.log(result.status);
+            //     console.log(result.data);
+            //     console.log(result.statusText === 'OK');
+            //     if (result.status === 200 || result.statusText === 'OK') {
+            //         deleteOutput(result.data.inputs).then(function(result){
+            //                  res.json(result.data);
+            //          });
+
+            //
+            //     }
         }
     });
 

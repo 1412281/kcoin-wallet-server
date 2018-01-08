@@ -25,7 +25,7 @@ exports.register = function(entity) {
         //send email to confirm email address
         console.log(res);
         email.sendEmail(entity.email, entity.address);
-        deferred.resolve(data.address);
+        deferred.resolve(entity.address);
     });
     return deferred.promise;
 };

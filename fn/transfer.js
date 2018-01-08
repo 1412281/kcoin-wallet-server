@@ -9,6 +9,7 @@ exports.getAllOutputCanUseInSystem = function () {
 }
 
 
+
 exports.getAllOutputCanUseInBlockchain = function () {
 
     // console.log('-----------tranfer');

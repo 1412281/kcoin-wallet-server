@@ -115,9 +115,8 @@ exports.createTransactionInSystem = function (entity) {
     return d.promise;
 }
 
-exports.createTransactionSystemOut = function (entity) {
-    entity.status = 'processing';
-    entity.coin = parseInt(entity.coin);
+exports.createTransactionSystemOut = function (destinations) {
+
     var d1 = q.defer();
     var d2 = q.defer();
     var d3 = q.defer();
@@ -167,7 +166,7 @@ exports.createTransactionSystemOut = function (entity) {
     return d3.promise;
 };
 
-var getKeysOfOutputs = function(outputs) {
+exports.getKeysOfOutputs = function(outputs) {
 
     var keys = [];
     outputs.forEach(function (output) {
