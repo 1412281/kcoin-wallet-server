@@ -94,10 +94,9 @@ exports.ReloadUSersBalance = function () {
         console.log(data);
         if ( data.type === 'block') {
             const block = data.data;
-            addBlock(All_Blocks,block);
+            addBlock(All_Blocks,[block]);
             transactionRepo.checkBlockHasTransactionInSystem(block);
-            //check receive and add to output
-            //
+            transactionRepo.checkBlockHasAddressReceiveInSystem(block);
         }
         if (data.type === 'transaction') {
             //khong quan tam

@@ -14,7 +14,7 @@ syncBlockchain.initAllBlocks().then(function (res) {
 
         console.log('--------GET REFERENCE OUTPUT CAN USE OF SYSTEM--------');
         transfer.getAllOutputCanUseInBlockchain().then(function (outputs) {
-            console.log(outputs);
+            // console.log(outputs);
             outputs.forEach(function (output) {
                 db.load('output', {transaction_hash: output.transaction_hash}).then(function (res) {
                     if (res.length === 0) {
