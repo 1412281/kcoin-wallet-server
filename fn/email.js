@@ -5,9 +5,9 @@ var walletRepo = require('../models/walletRepo');
 var userRepo = require('../models/userRepo');
 var q = require('q');
 var ultis = require('./utils');
-const HOST = 'localhost:4000';
-const USER = 'tranthienhoang14';
-const PASSWORD = 'malmalmalmal';
+const HOST = 'https://kcoin-wallet-server.herokuapp.com';
+const USER = 'lamtran260196@gmail.com';
+const PASSWORD = 'Hu5873%*&#';
 /*
     Here we are configuring our SMTP Server details.
     STMP is mail server which is responsible for sending and recieving email.
@@ -28,7 +28,7 @@ exports.sendEmail = function (emailaddress, address, host){
         verify_number: address
     });
     console.log('List_Waiting: ',List_Email_Register_Waiting);
-    link = "http://"+HOST+"/email/verify?address="+address;
+    link = HOST+"/email/verify?address="+address;
     mailOptions = {
         to : emailaddress,
         subject : "Please confirm your Email account",
@@ -65,7 +65,7 @@ exports.sendEmailTransactionConfirm = function (transaction){
     // hash transaction content
     var hash = transactionRepo.renderTransactionToHashString(transaction)
     console.log('sent:'+hash)
-    link = "http://"+HOST+"/email/transactionconfirm?hash="+hash;
+    link = HOST+"/email/transactionconfirm?hash="+hash;
     mailOptions = {
         to : transaction.email_send,
         subject : "Confirm your Transaction",

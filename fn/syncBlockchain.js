@@ -82,7 +82,6 @@ exports.ReloadUSersBalance = function () {
 
     exports.runBlockchainListener = function () {
     const ws = new WebSocket('wss://api.kcoin.club');
-// const ws = new WebSocket('http://localhost:4000/');
 
     ws.on('open', function open() {
         console.log('connected');
