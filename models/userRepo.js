@@ -61,7 +61,7 @@ exports.getBalance = function (address) {
             if (!output.in_use)
                 Balance+= output.value;
         });
-        console.log(listOutput);
+        // console.log(listOutput);
         deferred.resolve(Balance);
     });
     // Calculate Balance base on output list

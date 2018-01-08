@@ -5,10 +5,11 @@ const utils = require('./utils');
 const transfer = require('./transfer');
 
 const COIN_MIN = 1000;
+
 exports.initListener = function () {
     setInterval(function () {
         createOutput();
-    }, 3000);
+    }, 30000);
 
     setInterval(function () {
         createTransferWaitingTransaction();
@@ -35,7 +36,7 @@ var createOutput = function () {
 
     d_outputOnSystem.promise.then(function (outputs) {
         // console.log('output length', outputs);
-        if (outputs.length < 30) {
+        if (outputs.length < 20) {
             var sum = 0;
             var referenceOutputs = [];
             outputs.forEach(function (output) {
@@ -118,36 +119,40 @@ var createAnonymousUser = function () {
 
 //listener transaction is waiting
 var createTransferWaitingTransaction = function () {
-
+    console.log('=========CREATE TRANSFER WAITING TRANSACTION=============');
     var d = q.defer();
     transactionRepo.getTransactionByStatus('waiting').then(function (transactions) {
         if (transactions.length === 0) {
             d.reject("DON'T HAVE WAITING TRANSACTION");
         }
-        var listTransactionDocs = [];
-        transactions.forEach(function(transaction) {
-           listTransactionDocs.push(transactionRepo.renderTransactionToHashString(transaction));
-        });
-        // console.log('d_listTransaction',transactions)
-        var destinations = [];
-        transactions.forEach(function (transaction) {
-            destinations.push({
-                address: transaction.address_receive,
-                value: parseInt(transaction.coin)
+        else {
+            var listTransactionDocs = [];
+            transactions.forEach(function (transaction) {
+                listTransactionDocs.push(transactionRepo.renderTransactionToHashString(transaction));
             });
-        });
-        // console.log(destinations);
-        console.log(listTransactionDocs);
-        d.resolve(transactionRepo.createTransactionSystemOut(destinations).then(function (resTransaction) {
-            console.log(resTransaction);
-            transactionRepo.insertNewTransactionToDB(resTransaction.data.hash, {transactions: listTransactionDocs}).then(function(result) {
-                listTransactionDocs.forEach(function (doc) {
-                    transactionRepo.updateTransactionStatus(doc, 'processing');
-
+            // console.log('d_listTransaction',transactions)
+            var destinations = [];
+            transactions.forEach(function (transaction) {
+                destinations.push({
+                    address: transaction.address_receive,
+                    value: parseInt(transaction.coin)
                 });
             });
+            // console.log(destinations);
+            console.log(listTransactionDocs);
+            d.resolve(transactionRepo.createTransactionSystemOut(destinations).then(function (resTransaction) {
+                console.log(resTransaction);
+                transactionRepo.insertNewTransactionToDB(resTransaction.data.hash, {transactions: listTransactionDocs}).then(function (result) {
+                    listTransactionDocs.forEach(function (doc) {
+                        transactionRepo.updateTransactionStatus(doc, 'processing');
 
-        }));
+                    });
+                });
+
+            }));
+
+
+        }
     });
 
     return d.promise;

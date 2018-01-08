@@ -10,6 +10,10 @@ syncBlockchain.initAllBlocks().then(function (res) {
     var All_blocks = syncBlockchain.GetAllBlocks();
     console.log(All_blocks.length);
 
+    //find transaction has confirm when server down
+
+    //
+
     deleteAllOutputCurrent().then(function (res) {
 
         console.log('--------GET REFERENCE OUTPUT CAN USE OF SYSTEM--------');
@@ -23,14 +27,14 @@ syncBlockchain.initAllBlocks().then(function (res) {
                     }
                 })
             });
-
+            listener.initListener();
             console.log('--------GET EXTERNAL TRANSACTION SEND TO SYSTEM---------');
             // update all balance of user in system
             syncBlockchain.ReloadUSersBalance().then(function (result) {
-                console.log(result)
+                // console.log(result)
             })
 
-            listener.initListener();
+
 
         });
     });

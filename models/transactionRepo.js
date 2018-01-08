@@ -213,29 +213,28 @@ exports.insertNewTransactionToDB = function (doc, data) {
 
 
 exports.checkBlockHasTransactionInSystem = function (block) {
+    var d = q.defer();
+    var d1 = q.defer();
 
-    var d_listNewTransaction = q.defer();
-    db.load('newtransaction', {}).then(function (transactions) {
-        d_listNewTransaction.resolve(transactions);
+    block.transactions.forEach(function (transaction) {
+        var d_listNewTransaction = [];
+
+        d_listNewTransaction.push(db.find('newtransaction', transaction.hash));
+
+        q.all(d_listNewTransaction).then(function (newTransactions) {
+            newTransactions.forEach(function (newTransaction) {
+                console.log(newTransaction);
+                newTransaction.transactions.forEach(function (processingTransaction) {
+                    console.log(processingTransaction);
+                    db.update(COLLECTION, processingTransaction, {status: 'done'});
+
+                });
+                deleteNewTransactionInDB(transaction.hash);
+
+            })
+        })
     });
-
-    d_listNewTransaction.promise.then(function (listNewTransactions) {
-        console.log(listNewTransactions);
-
-        block.transactions.forEach(function (transaction) {
-            listNewTransactions.forEach(function(newTransaction) {
-                if (transaction.hash === newTransaction.hash) {
-                    console.log(transaction);
-                    newTransaction.transactions.forEach(function (tran) {
-                        db.update(COLLECTION, tran, {status: 'done'});
-                    })
-                    deleteNewTransactionInDB(newTransaction.hash);
-                }
-            });
-        });
-
-
-    });
+    return d1.promise;
 
 };
 
