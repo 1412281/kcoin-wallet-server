@@ -6,7 +6,10 @@ const COLLECTION = 'admin';
 exports.login = function(entity) {
     var d = q.defer();
     db.find(COLLECTION, entity.email).then(function(data) {
-        if (data.length > 0 && data.password == entity.password)
+        console.log('-----ADMIN-----')
+        console.log(entity)
+        console.log(data)
+        if (data && data.password == entity.password)
             d.resolve(data);
         else
             d.resolve([]);

@@ -1,8 +1,9 @@
 var q = require('q'),
     db = require('../fn/db_firebase'),
     utils = require('../fn/utils'),
-    email = require('../fn/email');
-
+    email = require('../fn/email'),
+    transactionRepo = require('./transactionRepo')
+var userRepo = require('../models/userRepo');
 const COLLECTION = 'user';
 
 
@@ -126,5 +127,33 @@ exports.getAllUsersBalance = function (limit, cursor) {
         });
         d.resolve(result);
     });
+    return d.promise;
+}
+
+
+exports.DeletePendingTransaction = function (transaction) {
+    console.log('---------START DELETE PENDING---------------')
+    var hashTransaction = transactionRepo.renderTransactionToHashString(transaction)
+    console.log(hashTransaction)
+    var d = q.defer();
+    // check if it is a pending transaction
+    transactionRepo.getPendingTrans().then(function (listpending) {
+        listpending.forEach(function (element) {
+            var hashDB = transactionRepo.renderTransactionToHashString(element)
+            if (hashDB === hashTransaction) {
+                transactionRepo.updateTransactionStatus(hashTransaction, 'cancel').then(function (result) {
+                    // add for balance of user sender
+                    userRepo.getInfoByEmail(element.email_send).then(function (sender) {
+                        console.log(sender)
+                        if(sender) {
+                            userRepo.updateBabance(element.email_send, parseInt(sender.balance)+ parseInt(element.coin)).then(function (result) {
+                                d.resolve(result);
+                            })
+                        }
+                    })
+                })
+            }
+        })
+    })
     return d.promise;
 }

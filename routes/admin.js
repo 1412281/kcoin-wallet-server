@@ -15,7 +15,9 @@ router.post('/login', function(req, res) {
         password: myCrypt(data.password)
     };
     adminRepo.login(entity).then(function(rows) {
-        if (JSON.stringify(rows)=== JSON.stringify({})) {
+        console.log('---asdasdasd-----')
+        console.log(rows)
+        if (JSON.stringify(rows)=== JSON.stringify([])) {
             res.json({result: 'Login Fail'});
         }
         const data = rows;
@@ -81,12 +83,16 @@ router.get('/userstransaction', function(req, res) {
     transactionRepo.getAllUsersTransaction(0, {}).then(function(alldata){
         var total_transaction = alldata.users_transaction.length
         var total_status = {
+                cancel: 0,
                 pending: 0,
+                waiting: 0,
                 processing: 0,
                 done: 0
         }
         alldata.users_transaction.map( function (t) {
+            if (t.status == 'cancel') total_status.cancel ++
             if (t.status == 'pending') total_status.pending ++
+            if (t.status == 'waiting') total_status.waiting ++
             if (t.status == 'processing') total_status.processing ++
             if (t.status == 'done') total_status.done ++
         })
