@@ -84,7 +84,7 @@ syncBlockchain.initAllBlocks().then(function (res) {
     })
     console.log('--------GET EXTERNAL TRANSACTION SEND TO SYSTEM---------');
     // update all balance of user in system
-    syncBlockchain.ReloadUsersBalance().then(function (result) {
+    syncBlockchain.ReloadUSersBalance().then(function (result) {
         console.log(result)
     })
 

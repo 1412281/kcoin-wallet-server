@@ -30,7 +30,7 @@ exports.GetAllBlocks = function () {
     return All_Blocks;
 }
 
-exports.ReloadUsersBalance = function () {
+var CalculateUpdateUsersBalance = function () {
     // Calculate from 4 source:
     //1. from External: others address send into address in database
     // get all address from database
@@ -72,6 +72,10 @@ exports.ReloadUsersBalance = function () {
         })
     })
 }
+exports.ReloadUSersBalance = function () {
+    return CalculateUpdateUsersBalance()
+}
+
 
     exports.runListener = function () {
     const ws = new WebSocket('wss://api.kcoin.club');
@@ -106,6 +110,7 @@ exports.ReloadUsersBalance = function () {
             block.getLossBlock(loss).then(function (lossBlocks) {
                 block.addBlock(All_Blocks,lossBlocks);
             });
+            CalculateUpdateUsersBalance()
         }
     }, 300000);
 };
