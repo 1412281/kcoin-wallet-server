@@ -114,12 +114,13 @@ exports.createTransactionInSystem = function (entity) {
     entity.status = 'pending';
     console.log('--------------------------------------------------------------create new transaction ',entity);
     //hash entity and use it by doc / ID with status = pending
-    console.log('Hash DOC of new transaction: ',hashfromDB)
-    var str = entity.email_send +entity.address_receive + entity.date + entity.coin
+    var str = entity.email_send +entity.address_receive + entity.date + entity.coin;
     console.log(str)
     var hashfromDB = utils.hash(str).toString('hex')
-    console.log(hashfromDB)
+    console.log('Hash DOC of new transaction: ',hashfromDB);
+
     db.insert(COLLECTION, hashfromDB, entity).then(function (result) {
+        console.log(result);
         d.resolve(result);
     })
 
@@ -225,15 +226,23 @@ exports.checkBlockHasTransactionInSystem = function (block) {
             listNewTransactions.forEach(function(newTransaction) {
                 if (transaction.hash === newTransaction.hash) {
                     console.log(transaction);
+                    newTransaction.transactions.forEach(function (tran) {
+                        db.update(COLLECTION, tran, {status: 'done'});
+                    })
+                    deleteNewTransactionInDB(newTransaction.hash);
                 }
             });
         });
-        // deleteNewTransactionInDB()
+
 
     });
 
 };
 
-var deleteNewTransactionInDB = function (transaction) {
-    return db.delete('newtransaction', transaction.hash);
+var deleteNewTransactionInDB = function (hash) {
+    return db.delete('newtransaction', hash);
 };
+
+exports.checkBlockHasAddressReceiveInSystem = function (block) {
+
+}

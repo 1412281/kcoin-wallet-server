@@ -55,6 +55,8 @@ r.post('/createTransaction', function (req, res) {
             // userRepo.getInfoByAddress(data.address_receive).then(function (infoAddressReceive) {
             //     d3_getInfoReceive.resolve(infoAddressReceive)
             // });
+            console.log('address Receive Is System IN');
+
             entity.system = 'in';
             transactionRepo.createTransactionInSystem(entity).then(function (result) {
                 d3_createTransactionInSystem.resolve(result);
@@ -66,16 +68,17 @@ r.post('/createTransaction', function (req, res) {
             });
         }
         else {
-            console.log('addressReceiveIs System Out');
+            console.log('address Receive Is System Out');
             entity.system = 'out';
             transactionRepo.createTransactionInSystem(entity).then(function (result) {
                 d3_createTransactionInSystem.resolve(result);
             });
 
-            q.all([d_updateBalanceUserSend, d3_createTransactionInSystem]).promise.then(function (result) {
-
+            q.all([d_updateBalanceUserSend, d3_createTransactionInSystem]).then(function (result) {
+                console.log('send successful out system!');
+                email.sendEmailTransactionConfirm(entity);
                 res.json(result);
-            })
+            });
             // transactionRepo.createTransactionSystemOut(entity).then(function (result) {
             //     console.log('-------SEND OUT SYSTEM---------');
             //     console.log(result.status);
