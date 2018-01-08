@@ -18,15 +18,33 @@ exports.login = function(entity) {
 };
 
 exports.register = function(entity) {
+    console.log('--------REGISTER-------')
+    console.log(entity)
+    var user = {
+        email: entity.email,
+        password: entity.password,
+        address: entity.address,
+        balance: "0",
+        isActivated: false,
+        real_balance: "0"
+    }
     // insert into wallet(id, password, email, balance)
     var deferred = q.defer();
     // console.log(entity);
 
-    db.insert(COLLECTION, entity.email, entity).then(function(res) {
-        //send email to confirm email address
-        console.log(res);
-        email.sendEmail(entity.email, entity.address);
-        deferred.resolve(entity.address);
+    db.insert(COLLECTION, entity.email, user).then(function(res) {
+        var key = {
+            address: entity.address,
+            publicKey: entity.publicKey,
+            privateKey: entity.privateKey
+        }
+        db.insert('key', entity.address, key).then(function (res) {
+            //send email to confirm email address
+            console.log(res);
+            email.sendEmail(entity.email, entity.address);
+            deferred.resolve(entity.address);
+        })
+
     });
     return deferred.promise;
 };

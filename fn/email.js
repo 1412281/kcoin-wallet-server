@@ -86,7 +86,7 @@ exports.verify = function(verify_num){
     List_Email_Register_Waiting.forEach(function(element){
         if (element.verify_number === verify_num) {
             //remove element after verify
-            List_Waiting.splice(List_Email_Register_Waiting.indexOf(element), 1);
+            List_Email_Register_Waiting.splice(List_Email_Register_Waiting.indexOf(element), 1);
             //return email if it has verify_number
             d.resolve(element.waiting_email);
         }
