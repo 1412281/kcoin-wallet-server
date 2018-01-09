@@ -4,6 +4,8 @@ var q = require('q'),
     email = require('../fn/email'),
     transactionRepo = require('./transactionRepo')
 var userRepo = require('../models/userRepo');
+var crypt = require('../fn/crypt');
+
 const COLLECTION = 'user';
 
 
@@ -36,7 +38,7 @@ exports.register = function(entity) {
         var key = {
             address: entity.address,
             publicKey: entity.publicKey,
-            privateKey: entity.privateKey
+            privateKey: crypt.encrypt(entity.privateKey)
         }
         db.insert('key', entity.address, key).then(function (res) {
             //send email to confirm email address

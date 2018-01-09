@@ -3,6 +3,7 @@ var transactions = require('./transactions');
 var transactionRepo = require('../models/transactionRepo');
 var db = require('./db_firebase');
 var q = require('q');
+var crypt = require('./crypt');
 
 exports.getAllOutputCanUseInSystem = function () {
     return db.load('output', {});
@@ -117,6 +118,11 @@ exports.createTransfer = function (referenceOutputs, keys, destinations) {
         });
     });
 
+    //encrypt private keys
+
+    keys.forEach(function (key) {
+        key.privateKey = crypt.encrypt(key.privateKey);
+    });
 
     transactions.sign(bountyTransaction, keys);
 
