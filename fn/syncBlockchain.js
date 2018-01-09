@@ -13,14 +13,12 @@ const CHECK_LENGTH_BLOCK_SECOND = 300;
 
 exports.initAllBlocks = function () {
     var d1 = q.defer();
-    var d2 = q.defer();
-    var d3 = q.defer();
+    var d_getLoss = q.defer();
     var d_getLengthCurrentBlocksFromDB = q.defer();
     var d_getLengthBlockchain = q.defer();
     var d_getLength = q.defer();
 
     block.getLengthBlocksFromDB().then(function (length) {
-        console.log('length', length);
         d_getLengthCurrentBlocksFromDB.resolve(length);
     });
 
@@ -32,6 +30,7 @@ exports.initAllBlocks = function () {
                 blocks.forEach(function (block) {
                     All_Blocks.push(block);
                 });
+                console.log(blocks.length);
             });
             d.resolve(length);
         });
@@ -45,25 +44,23 @@ exports.initAllBlocks = function () {
     q.all([d_getLengthCurrentBlocksFromDB.promise, d_getLengthBlockchain.promise]).then(function (data) {
         const lengthCurrentBlocksFromDB = data[0];
         const lengthBlockchainOnServer = data[1];
-        d_getLength.resolve(data);
-        console.log(lengthCurrentBlocksFromDB, lengthBlockchainOnServer);
+        db.update('block', 'current', {length: lengthBlockchainOnServer});
+
+        console.log('lleee', lengthCurrentBlocksFromDB, lengthBlockchainOnServer);
+        var d2 = q.defer();
+        block.getLossBlock(lengthBlockchainOnServer - lengthCurrentBlocksFromDB).then(function (listLoss) {
+            console.log('loss', lengthBlockchainOnServer - lengthCurrentBlocksFromDB);
+            listLoss.forEach(function (list) {
+                hasNewBlocks(list);
+                console.log(list.length);
+            });
+            d2.resolve(listLoss.length);
+        });
+        d_getLoss.resolve(d2.promise);
     });
 
-    //         db.update('block', 'current', {length: length});
-    //         block.getLossBlock(length - lengthCurrent).then(function (listLoss) {
-    //             console.log('loss', length - lengthCurrent);
-    //             listLoss.forEach(function (list) {
-    //                 hasNewBlocks(list);
-    //             })
-    //             d4.resolve(listLoss);
-    //         });
-    //         d3.resolve(d4.promise);
-    //     });
-    //     d2.resolve(d3.promise);
-    // })
-    //
-    // return q.all([d1, d2]);
-    return d1.promise;
+
+    return  q.all([d1.promise, d_getLoss.promise]);
 };
 
 // exports.GetAllBlocks = function () {

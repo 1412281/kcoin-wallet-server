@@ -5,17 +5,21 @@ const userRepo = require('../models/userRepo');
 const utils = require('./utils');
 const transfer = require('./transfer');
 
-const COIN_MIN = 3000;
-const NUMBER_OF_OUTPUT_NEED = 20;
+const COIN_MIN = 1000;
+const NUMBER_OF_OUTPUT_NEED = 10;
 const ADDRESS_CHILD = 'da0214e8d3317edfc1aa6df914d4c14bfd17cc55a10f74ea4b17124006991335';
 
 exports.initListener = function () {
     setInterval(function () {
-        //createOutput();
+        createOutput().then(function (res) {
+            console.log(res);
+        });
     }, 30000);
 
     setInterval(function () {
-        createTransferWaitingTransaction();
+        createTransferWaitingTransaction().then(function (res) {
+            console.log(res);
+        });
     }, 30000)
 };
 
@@ -39,7 +43,8 @@ var createOutput = function () {
 
     d_outputOnSystem.promise.then(function (outputs) {
         // console.log('output length', outputs);
-        if (outputs.length < NUMBER_OF_OUTPUT_NEED) {
+
+        if (outputs.length < NUMBER_OF_OUTPUT_NEED && outputs.length > 5) {
             var sum = 0;
             var referenceOutputs = [];
             outputs.forEach(function (output) {
@@ -107,7 +112,7 @@ var createOutput = function () {
             console.log(result.data);
             if (result.status === 200) {
                 referencOutputs.forEach(function (output) {
-                    db.delete('output', output.hash);
+                    db.delete('output', output.transaction_hash);
                 });
                 d.resolve(result);
             }

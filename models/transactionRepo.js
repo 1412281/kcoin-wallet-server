@@ -151,8 +151,13 @@ exports.createTransactionSystemOut = function (destinations) {
                 value += output.value;
             }
         });
-        // console.log('listOutputWillUse', listOutputWillUse);
-        d1.resolve(listOutputWillUse);
+        if (value < sum) {
+            d3.reject("DON'T ENOUGH COIN TO TRANSFER");
+        }
+        else {
+            // console.log('listOutputWillUse', listOutputWillUse);
+            d1.resolve(listOutputWillUse);
+        }
     });
     d1.promise.then(function (listOutputs) {
         // console.log('get key');
