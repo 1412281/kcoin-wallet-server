@@ -49,22 +49,22 @@ router.get('/usersbalance', function(req, res) {
         var totaluser = alldata.users_balance.length
 
         var total_balance = 0
-        var total_real_balance = 0
-        alldata.users_balance.map( function (t) {
-            total_balance += parseInt(t.balance)
-            total_real_balance += parseInt(t.real_balance)
-        })
-
-        walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
-            res.json({
-                total_user: totaluser,
-                total_balance: total_balance,
-                total_real_balance: total_real_balance,
-               users_balance: data.users_balance,
-               cursor: data.cursor,
-               next: data.next
+        // var total_real_balance = 0
+        //calculate balance of all system base on outputs in database
+        adminRepo.getToTalBalanceSystem().then(function (total_balance_system) {
+            console.log('----TOTAL BALANCE SYSTEM', total_balance_system);
+            total_balance = total_balance_system
+            walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
+                res.json({
+                    total_user: totaluser,
+                    total_balance: total_balance,
+                    total_real_balance: total_real_balance,
+                    users_balance: data.users_balance,
+                    cursor: data.cursor,
+                    next: data.next
+                });
             });
-        });
+        })
     });
 });
 router.get('/userstransaction', function(req, res) {
