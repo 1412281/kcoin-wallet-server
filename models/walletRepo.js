@@ -43,7 +43,7 @@ exports.register = function(entity) {
 
         })
         console.log(res);
-        email.sendEmail(entity.email, entity.address);
+        // email.sendEmail(entity.email, entity.address);
         deferred.resolve(entity.address);
 
     });

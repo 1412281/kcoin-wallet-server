@@ -77,7 +77,7 @@ exports.getCurrentBlocks = function (length) {
 }
 
 exports.getLossBlock = function (loss) {
-    console.log(loss);
+    // console.log(loss);
     var listLoss = [];
     for(var i = 0; i < loss; i+=100) {
         listLoss.push(
