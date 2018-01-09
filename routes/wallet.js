@@ -1,5 +1,7 @@
 var express = require('express');
 var walletRepo = require('../models/walletRepo');
+var transactionRepo = require('../models/transactionRepo');
+var userRepo = require('../models/userRepo');
 var utils = require('../fn/utils');
 var r = express.Router();
 var crypto = require('crypto');
@@ -14,7 +16,7 @@ r.post('/register', function(req, res) {
     //check email if it exists in database
     walletRepo.checkExist(req.body.email).then(function(data){
         console.log(data);
-        
+
         if (data.length > 0) {
             res.status(409);
             res.send('email already exist!');
@@ -40,7 +42,7 @@ r.post('/register', function(req, res) {
                     .catch(function(err) {
                         console.log(err);
                         res.status(400);
-                    });       
+                    });
         }
     });
 });
@@ -86,7 +88,7 @@ r.get('/existsemail', function(req, res) {
             res.status(200);
             res.send("Available");
         }
-        
+
     });
 });
 
@@ -172,5 +174,48 @@ r.post('/deletepending', function(req, res) {
     }
 });
 
+r.get('/getAllReceiveHistory', function(req, res) {
+    const data = req.query;
+    const zip = {
+        email: data.email,
+        date_exp:  parseInt(data.date_exp)
+    };
+    //console.log(zip);
+
+    if (tokenIsAvailable(data.token, zip)) {
+        console.log('token correct');
+        //get address from database user
+        userRepo.getInfoByEmail(data.email).then(function (userinfo) {
+            var RESULT = [];
+            // get receive from transaction in database
+            transactionRepo.getTransactionByStatus('done').then(function (receiveFromInSystem) {
+                receiveFromInSystem.forEach(function (Intransaction) {
+                    if (Intransaction.address_receive === userinfo.address){
+                        //get address of sender:
+                        userRepo.getInfoByEmail(Intransaction.email_send).then(function (senderInfo) {
+                            RESULT.push({
+                                address_send: senderInfo.address,
+                                date: Intransaction.date,
+                                coin: Intransaction.coin
+                            })
+                        })
+                    }
+                })
+                // After that get receive from all transaction in BLOCKCHAIN
+                console.log('-------GET ALL outer TRANSACTION--------',userinfo.address)
+                transactionRepo.getAllOuterTransByAddress(userinfo.address)
+                    .forEach(function (outtrans) {
+                        RESULT.push(outtrans)
+                    })
+                    // Recalculate from output
+                    res.json(RESULT);
+            })
+        })
+    } else {
+        console.log(zip);
+        console.log('token fail');
+        res.end();
+    }
+});
 
 module.exports = r;

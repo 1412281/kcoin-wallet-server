@@ -98,8 +98,10 @@ var CalculateUpdateUsersBalance = function () {
                             }
                         }
                         if (internal_transaction.email_send == user.email) {
-                            Total_Balance -= parseInt(internal_transaction.coin)
-                            if (internal_transaction.status != 'pending') {
+                            if (internal_transaction.status !== 'cancel') {
+                                Total_Balance -= parseInt(internal_transaction.coin)
+                            }
+                            if (internal_transaction.status === 'done') {
                                 Total_Real_Balance -= parseInt(internal_transaction.coin)
                             }
                         }
