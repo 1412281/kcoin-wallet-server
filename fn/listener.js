@@ -1,14 +1,17 @@
 const q = require('q');
 const db = require('./db_firebase');
 const transactionRepo = require('../models/transactionRepo');
+const userRepo = require('../models/userRepo');
 const utils = require('./utils');
 const transfer = require('./transfer');
 
-const COIN_MIN = 1000;
+const COIN_MIN = 3000;
+const NUMBER_OF_OUTPUT_NEED = 20;
+const ADDRESS_CHILD = 'da0214e8d3317edfc1aa6df914d4c14bfd17cc55a10f74ea4b17124006991335';
 
 exports.initListener = function () {
     setInterval(function () {
-        createOutput();
+        //createOutput();
     }, 30000);
 
     setInterval(function () {
@@ -36,7 +39,7 @@ var createOutput = function () {
 
     d_outputOnSystem.promise.then(function (outputs) {
         // console.log('output length', outputs);
-        if (outputs.length < 20) {
+        if (outputs.length < NUMBER_OF_OUTPUT_NEED) {
             var sum = 0;
             var referenceOutputs = [];
             outputs.forEach(function (output) {
@@ -56,7 +59,7 @@ var createOutput = function () {
     });
     d_listOutputWillUse.promise.then(function (outputs) {
         // console.log(outputs);
-        transactionRepo.getKeysOfOutputs(outputs).then(function (keys) {
+        userRepo.getKeysOfOutputs(outputs).then(function (keys) {
             // console.log('keys', keys);
             d_getKeysOfOutputs.resolve(keys);
         });
@@ -93,12 +96,22 @@ var createOutput = function () {
         var destinations = [];
         data[2].forEach(function (des) {
             destinations.push({
-                address: des,
+                address: ADDRESS_CHILD,
                 value: COIN_MIN
             })
         })
         transfer.createTransfer(referencOutputs, keys, destinations).then(function (result) {
-            d.resolve(result);
+            console.log(result.status);
+            console.log(result.data);
+            if (result.status === 200) {
+                referencOutputs.forEach(function (output) {
+                    db.delete('output', output.hash);
+                });
+                d.resolve(result);
+            }
+            else {
+                d.resolve(result.status);
+            }
         });
 
     })
@@ -109,11 +122,10 @@ var createOutput = function () {
 
 var createAnonymousUser = function () {
     var d = q.defer();
-    var user = utils.generateAddress();
-    db.insert('user', '', user).then(function (result) {
-        d.resolve(user);
+    var key = utils.generateAddress();
+    db.insert('key', key.address, key).then(function (result) {
+        d.resolve(key.address);
     });
-    d.resolve(user.address);
     return d.promise;
 };
 

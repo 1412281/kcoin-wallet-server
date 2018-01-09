@@ -223,10 +223,11 @@ exports.checkBlockHasTransactionInSystem = function (block) {
 
         q.all(d_listNewTransaction).then(function (newTransactions) {
             newTransactions.forEach(function (newTransaction) {
-                console.log(newTransaction);
+                // console.log(newTransaction);
                 newTransaction.transactions.forEach(function (processingTransaction) {
-                    console.log(processingTransaction);
+                    // console.log(processingTransaction);
                     db.update(COLLECTION, processingTransaction, {status: 'done'});
+                    console.log('Comfirm transaction', processingTransaction);
 
                 });
                 deleteNewTransactionInDB(transaction.hash);
@@ -261,12 +262,13 @@ exports.checkBlockHasAddressReceiveInSystem = function (block) {
     q.all(listUsers).then(function (users) {
         users.forEach(function (user) {
             if (user[0] !== undefined) {
-                console.log(user[0]);
-                console.log(listOutputs);
+                // console.log(user[0]);
+                // console.log(listOutputs);
                 listOutputs.forEach(function (output) {
                     const address = output.lockScript.split(' ')[1];
                     if (user[0].address === address) {
                         userRepo.updateBabance(user[0].email, parseInt(parseInt(user[0].balance) + parseInt(output.value)));
+                        console.log('Update Balance:', user[0].email, 'from', parseInt(user[0].balance), 'to', parseInt(parseInt(user[0].balance) + parseInt(output.value)));
                     }
                 })
                 //

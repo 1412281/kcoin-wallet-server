@@ -10,10 +10,6 @@ syncBlockchain.initAllBlocks().then(function (res) {
     var All_blocks = syncBlockchain.GetAllBlocks();
     console.log(All_blocks.length);
 
-    //find transaction has confirm when server down
-
-    //
-
     deleteAllOutputCurrent().then(function (res) {
 
         console.log('--------GET REFERENCE OUTPUT CAN USE OF SYSTEM--------');

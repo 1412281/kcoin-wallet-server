@@ -102,7 +102,7 @@ exports.transactionConfirm = function (hash) {
     var d = q.defer();
     transactionRepo.getPendingTrans().then( function (listpending) {
         console.log(listpending)
-        if (listpending.length == 0) {
+        if (listpending.length === 0) {
             d.resolve('confirm fail')
         }
         // hash each transaction element and compare with hash input
@@ -121,13 +121,14 @@ exports.transactionConfirm = function (hash) {
                 transactionRepo.updateTransactionStatus(hash, newStatus).then(function (res) {
                     //add balance to receiver
                     //find user email by receive wallet
+                    var d1 = q.defer();
                     userRepo.getInfoByAddress(element.address_receive).then( function(email_receive){
                         if (element.system === 'in') {
                             console.log('--------RECEIVER: ', email_receive)
                             if (email_receive) {
                                 userRepo.updateBabance(email_receive.email, parseInt(email_receive.balance) + parseInt(element.coin)).then(function (res) {
                                     console.log(res);
-                                    d.resolve(res);
+                                    d1.resolve(res);
                                 })
                             }
                             else { //address email not exists in database, address outside system
@@ -138,7 +139,7 @@ exports.transactionConfirm = function (hash) {
 
                         }
                     });
-
+                    d.resolve(d1.promise);
                 })
             }
         })

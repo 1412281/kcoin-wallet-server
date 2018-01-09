@@ -4,6 +4,7 @@ var q = require('q')
 var userRepo = require('../models/userRepo')
 var walletRepo = require('../models/walletRepo')
 var transactionRepo = require('../models/transactionRepo')
+var db = require('./db_firebase');
 
 var All_Blocks = [];
 
@@ -12,15 +13,35 @@ const CHECK_LENGTH_BLOCK_SECOND = 300;
 
 exports.initAllBlocks = function () {
     var d = q.defer()
-    block.getBlocksSize().then(function (length) {
-        for(var i = 0; i < length; i += 100) {
-            block.getBlocks(i).then(function (blocks) {
-                addBlock(All_Blocks, blocks);
-                if (All_Blocks.length >= length) d.resolve('done')
-
-            })
-        }
+    var d_getLengthCurrentBlocksFromDB = q.defer();
+    block.getLengthBlocksFromDB().then(function (length) {
+        console.log(length);
+        d_getLengthCurrentBlocksFromDB.resolve(length);
     });
+
+    d_getLengthCurrentBlocksFromDB.promise.then(function (length) {
+        block.getCurrentBlocks(length).then(function (list) {
+            list.forEach(function (blocks) {
+                console.log(blocks.length);
+                blocks.forEach(function (block) {
+                    All_Blocks.push(block);
+                });
+            })
+        });
+    });
+    d_getLengthCurrentBlocksFromDB.promise.then(function (lengthCurrent) {
+        block.getBlocksSize().then(function (length) {
+            db.update('block', 'current', {length: length});
+            block.getLossBlock(length - lengthCurrent).then(function (listLoss) {
+                console.log('loss', length - lengthCurrent);
+                listLoss.forEach(function (list) {
+                    hasNewBlocks(list);
+                })
+
+            });
+        });
+    })
+
     return d.promise;
 };
 
@@ -80,7 +101,7 @@ exports.ReloadUSersBalance = function () {
 }
 
 
-    exports.runBlockchainListener = function () {
+exports.runBlockchainListener = function () {
     const ws = new WebSocket('wss://api.kcoin.club');
 
     ws.on('open', function open() {
@@ -93,9 +114,8 @@ exports.ReloadUSersBalance = function () {
         console.log(data);
         if ( data.type === 'block') {
             const block = data.data;
-            addBlock(All_Blocks,[block]);
-            transactionRepo.checkBlockHasTransactionInSystem(block);
-            transactionRepo.checkBlockHasAddressReceiveInSystem(block);
+            hasNewBlocks([block]);
+
         }
         if (data.type === 'transaction') {
             //khong quan tam
@@ -114,17 +134,23 @@ exports.ReloadUSersBalance = function () {
         const loss = block.getBlocksSize() > All_Blocks.length;
         if (loss > 0) {
             block.getLossBlock(loss).then(function (lossBlocks) {
-                block.addBlock(All_Blocks,lossBlocks);
+                hasNewBlocks(lossBlocks);
             });
             CalculateUpdateUsersBalance()
         }
     }, CHECK_LENGTH_BLOCK_SECOND * 1000);
 };
 
-var addBlock = function (AllBlocks, blocks) {
-    // console.log('add block', blocks); //add to db
-    // db.insert(data);
-    blocks.forEach(function (block) {
-        AllBlocks.push(block);
+
+var hasNewBlocks = function (blocks) {
+    blocks.forEach(function (b) {
+        addBlock(All_Blocks,b);
+        transactionRepo.checkBlockHasTransactionInSystem(b);
+        transactionRepo.checkBlockHasAddressReceiveInSystem(b);
     })
+
+}
+
+var addBlock = function (AllBlocks, block) {
+        AllBlocks.push(block);
 };
