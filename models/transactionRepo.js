@@ -282,3 +282,29 @@ exports.checkBlockHasAddressReceiveInSystem = function (block) {
     })
 
 };
+
+exports.getAllOuterTransByAddress = function(addressInput) {
+    // d = q.defer();
+    address = "ADD " + addressInput;
+    var listOutput = [];
+    var ListBlocks = sync.GetAllBlocks();
+    //Search in all Blocks in memory
+    console.log(ListBlocks.length);
+    ListBlocks.forEach(function (block) {
+        block.transactions.forEach(function (transaction) {
+            var ELEMENT = {
+                date: new Date(block.timestamp * 1e3),
+                address_send: 'Anominous',
+                coin: 0
+        }
+            for (i = 0; i < transaction.outputs.length; i++) {
+                if (transaction.outputs[i].lockScript === address) {
+                    ELEMENT.coin += transaction.outputs[i].value;
+                }
+            }
+            if (ELEMENT.coin > 0)
+                listOutput.push(ELEMENT);
+        });
+    });
+    return listOutput
+}
