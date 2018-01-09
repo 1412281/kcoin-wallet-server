@@ -2,8 +2,8 @@ var express = require('express');
 var router = express.Router();
 var email = require('../fn/email');
 var walletRepo = require('../models/walletRepo');
-// const CLIENT_HOST = 'https://1412281.github.io/kcoin-wallet-client'
-const CLIENT_HOST = 'http://localhost:3000';
+const CLIENT_HOST = 'https://1412281.github.io/kcoin-wallet-client'
+// const CLIENT_HOST = 'http://localhost:3000';
 
 router.get('/verify', function(req, res, next) {
 	//get waiting email corresponding with id number
