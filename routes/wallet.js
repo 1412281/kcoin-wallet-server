@@ -189,26 +189,34 @@ r.get('/getAllReceiveHistory', function(req, res) {
             var RESULT = [];
             // get receive from transaction in database
             transactionRepo.getTransactionByStatus('done').then(function (receiveFromInSystem) {
+                var promises = []
                 receiveFromInSystem.forEach(function (Intransaction) {
                     if (Intransaction.address_receive === userinfo.address){
                         //get address of sender:
-                        userRepo.getInfoByEmail(Intransaction.email_send).then(function (senderInfo) {
-                            RESULT.push({
+                        var promise = userRepo.getInfoByEmail(Intransaction.email_send).then(function (senderInfo) {
+                            return {
                                 address_send: senderInfo.address,
                                 date: Intransaction.date,
                                 coin: Intransaction.coin
-                            })
+                            }
                         })
+                        promises.push(promise)
                     }
                 })
                 // After that get receive from all transaction in BLOCKCHAIN
-                console.log('-------GET ALL outer TRANSACTION--------',userinfo.address)
-                transactionRepo.getAllOuterTransByAddress(userinfo.address)
-                    .forEach(function (outtrans) {
-                        RESULT.push(outtrans)
+                Promise.all(promises).then(function (list) {
+                    list.forEach(function (tran) {
+                        RESULT.push(tran)
                     })
+                    console.log('-------GET ALL outer TRANSACTION--------',userinfo.address)
+                    transactionRepo.getAllOuterTransByAddress(userinfo.address)
+                        .forEach(function (outtrans) {
+                            RESULT.push(outtrans)
+                        })
                     // Recalculate from output
                     res.json(RESULT);
+                })
+
             })
         })
     } else {
