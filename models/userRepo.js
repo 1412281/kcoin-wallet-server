@@ -90,6 +90,16 @@ exports.updateBabance = function (email, balance) {
     return d.promise;
 }
 
+exports.update2Balance = function (email, balance, realbalance) {
+    var d = q.defer();
+
+    db.update(COLLECTION, email, {balance: balance.toString(), real_balance: realbalance.toString()}).then(function (result) {
+        d.resolve(result);
+    });
+
+    return d.promise;
+}
+
 exports.getKeysOfOutputs = function(outputs) {
 
     var keys = [];
