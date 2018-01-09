@@ -307,4 +307,18 @@ exports.getAllOuterTransByAddress = function(addressInput) {
         });
     });
     return listOutput
+};
+
+var axios = require('axios');
+
+exports.getTransactionOnBlockchainByHash = function(hash) {
+    var d = q.defer();
+    var strLink = '/transactions/' + hash;
+    axios.get(strLink).then(function (transaction) {
+        // console.log(transaction.data);
+        if (transaction.data.hasOwnProperty('hash')) {
+            d.resolve(transaction.data);
+        }
+    });
+    return d.promise;
 }

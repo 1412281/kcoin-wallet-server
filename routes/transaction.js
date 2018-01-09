@@ -148,7 +148,14 @@ r.post('/getRencentTransaction', function (req, res) {
     });
 });
 
+r.get('/:hash', function (req, res) {
+    const transactionHash = req.params.hash;
 
+    transactionRepo.getTransactionOnBlockchainByHash(transactionHash).then(function (result) {
+        // console.log(result);
+        res.json(result);
+    });
+});
 //
 // r.put('/', function(req, res) {
 //     console.log(req.body);
