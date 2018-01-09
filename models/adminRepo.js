@@ -30,3 +30,18 @@ exports.getToTalBalanceSystem = function() {
     });
     return d.promise;
 };
+
+exports.getToTalCoinSentOutSystem = function() {
+    var d = q.defer();
+    var TOTAL = 0;
+    db.load('transactions',{system: 'out'}).then(function(outs) {
+        console.log(outs)
+        outs.forEach(function (output) {
+            if (output.status == 'processing' || output.status == 'done')
+                TOTAL+= parseInt(output.coin)
+        })
+        d.resolve(TOTAL)
+
+    });
+    return d.promise;
+};

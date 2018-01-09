@@ -121,7 +121,7 @@ exports.createTransfer = function (referenceOutputs, keys, destinations) {
     //encrypt private keys
 
     keys.forEach(function (key) {
-        key.privateKey = crypt.encrypt(key.privateKey);
+        key.privateKey = crypt.decrypt(key.privateKey);
     });
 
     transactions.sign(bountyTransaction, keys);

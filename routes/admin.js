@@ -4,6 +4,7 @@ var crypto = require('crypto');
 var adminRepo = require('../models/adminRepo');
 var walletRepo = require('../models/walletRepo');
 var transactionRepo = require('../models/transactionRepo');
+var blockRepo = require('../models/blockRepo');
 
 const key1 = '!@#1';
 const key2 = '!@#GF$fgdT%@%$45G';
@@ -54,16 +55,22 @@ router.get('/usersbalance', function(req, res) {
         adminRepo.getToTalBalanceSystem().then(function (total_balance_system) {
             console.log('----TOTAL BALANCE SYSTEM', total_balance_system);
             total_balance = total_balance_system
-            walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
-                res.json({
-                    total_user: totaluser,
-                    total_balance: total_balance,
-                    total_real_balance: total_real_balance,
-                    users_balance: data.users_balance,
-                    cursor: data.cursor,
-                    next: data.next
+            //calculate all coin have been sent outside:
+            adminRepo.getToTalCoinSentOutSystem().then(function (total_sent_out_system) {
+                console.log('Sent out:',total_sent_out_system)
+                var total_receive_out_system = blockRepo.getTotalCoinReceiveOutSystem(alldata.users_balance)
+                total_real_balance = total_receive_out_system - total_sent_out_system
+                walletRepo.getAllUsersBalance(data.limit, JSON.parse(data.cursor)).then(function(data){
+                    res.json({
+                        total_user: totaluser,
+                        total_balance: total_balance,
+                        total_real_balance: total_real_balance,
+                        users_balance: data.users_balance,
+                        cursor: data.cursor,
+                        next: data.next
+                    });
                 });
-            });
+            })
         })
     });
 });
