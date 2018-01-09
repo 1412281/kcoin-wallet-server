@@ -5,6 +5,7 @@ var q = require('q'),
     db = require('../fn/db_firebase');
 
     var utils = require('../fn/utils');
+var axios = require('axios');
 
 const COLLECTION = 'transactions';
 
@@ -282,3 +283,16 @@ exports.checkBlockHasAddressReceiveInSystem = function (block) {
     })
 
 };
+
+
+exports.getTransactionOnBlockchainByHash = function(hash) {
+    var d = q.defer();
+    var strLink = '/transactions/' + hash;
+    axios.get(strLink).then(function (transaction) {
+        // console.log(transaction.data);
+       if (transaction.data.hasOwnProperty('hash')) {
+           d.resolve(transaction.data);
+       }
+    });
+    return d.promise;
+}
