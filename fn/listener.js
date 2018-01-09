@@ -30,7 +30,7 @@ var createOutput = function () {
     var d_listOutputWillUse = q.defer();
     var d_getKeysOfOutputs = q.defer();
     var d_createUsers = q.defer();
-    var d_sumOfValue = q.defer();
+    var d_numberDes = q.defer();
     const q1 = require('q');
     db.load('output', {}).then(function (outputs) {
         d_outputOnSystem.resolve(outputs);
@@ -54,7 +54,7 @@ var createOutput = function () {
                 }
             });
             d_listOutputWillUse.resolve(referenceOutputs);
-            d_sumOfValue.resolve(sum);
+            d_numberDes.resolve(sum/COIN_MIN - 1);
         }
     });
     d_listOutputWillUse.promise.then(function (outputs) {
@@ -65,17 +65,17 @@ var createOutput = function () {
         });
     });
 
-    d_sumOfValue.promise.then(function (sum) {
-        console.log(sum);
-        var maxUsers = sum / COIN_MIN;
-        var users = [];
-        for (var i = 0; i < maxUsers - 1; i++) {
-            users.push(createAnonymousUser());
-        }
-        d_createUsers.resolve(q1.all(users));
-    });
+    // d_numberDes.promise.then(function (sum) {
+    //     console.log(sum);
+    //     var maxUsers = sum / COIN_MIN;
+    //     var users = [];
+    //     for (var i = 0; i < maxUsers - 1; i++) {
+    //         users.push(createAnonymousUser());
+    //     }
+    //     d_createUsers.resolve(q1.all(users));
+    // });
 
-    q.all([d_listOutputWillUse.promise, d_getKeysOfOutputs.promise, d_createUsers.promise]).then(function (data) {
+    q.all([d_listOutputWillUse.promise, d_getKeysOfOutputs.promise, d_numberDes.promise]).then(function (data) {
         console.log(data);
         var referencOutputs = [];
         data[0].forEach(function (output) {
@@ -93,13 +93,15 @@ var createOutput = function () {
                 address: key.address
             })
         });
+        const numberOfDes = data[2];
         var destinations = [];
-        data[2].forEach(function (des) {
+        for(var i = 0; i < numberOfDes; i++) {
             destinations.push({
                 address: ADDRESS_CHILD,
                 value: COIN_MIN
             })
-        })
+        }
+
         transfer.createTransfer(referencOutputs, keys, destinations).then(function (result) {
             console.log(result.status);
             console.log(result.data);
@@ -120,14 +122,14 @@ var createOutput = function () {
 
 };
 
-var createAnonymousUser = function () {
-    var d = q.defer();
-    var key = utils.generateAddress();
-    db.insert('key', key.address, key).then(function (result) {
-        d.resolve(key.address);
-    });
-    return d.promise;
-};
+// var createAnonymousUser = function () {
+//     var d = q.defer();
+//     var key = utils.generateAddress();
+//     db.insert('key', key.address, key).then(function (result) {
+//         d.resolve(key.address);
+//     });
+//     return d.promise;
+// };
 
 //listener transaction is waiting
 var createTransferWaitingTransaction = function () {
