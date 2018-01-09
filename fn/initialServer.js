@@ -5,6 +5,7 @@ var syncBlockchain = require('./syncBlockchain');
 var transactionRepo = require('../models/transactionRepo');
 
 console.log('==================START WALLET KCOIN BLOCKCHAIN==========================');
+
 syncBlockchain.initAllBlocks().then(function (res) {
     console.log('-------Get and save Blockchain----------');
     var All_blocks = syncBlockchain.GetAllBlocks();

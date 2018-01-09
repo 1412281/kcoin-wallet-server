@@ -12,6 +12,7 @@ axios.defaults.baseURL = 'https://api.kcoin.club/';
 exports.getLengthBlocksFromDB = function () {
     var d = q.defer();
     db.find('block', 'current').then(function (current) {
+        console.log(current);
         d.resolve(current.length);
     })
     return d.promise;

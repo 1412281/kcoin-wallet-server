@@ -12,37 +12,58 @@ const PING_SOCKET_SECOND = 30;
 const CHECK_LENGTH_BLOCK_SECOND = 300;
 
 exports.initAllBlocks = function () {
-    var d = q.defer()
+    var d1 = q.defer();
+    var d2 = q.defer();
+    var d3 = q.defer();
     var d_getLengthCurrentBlocksFromDB = q.defer();
+    var d_getLengthBlockchain = q.defer();
+    var d_getLength = q.defer();
+
     block.getLengthBlocksFromDB().then(function (length) {
-        console.log(length);
+        console.log('length', length);
         d_getLengthCurrentBlocksFromDB.resolve(length);
     });
 
     d_getLengthCurrentBlocksFromDB.promise.then(function (length) {
+        var d = q.defer();
         block.getCurrentBlocks(length).then(function (list) {
             list.forEach(function (blocks) {
-                console.log(blocks.length);
+                // console.log(blocks.length);
                 blocks.forEach(function (block) {
                     All_Blocks.push(block);
                 });
-            })
-        });
-    });
-    d_getLengthCurrentBlocksFromDB.promise.then(function (lengthCurrent) {
-        block.getBlocksSize().then(function (length) {
-            db.update('block', 'current', {length: length});
-            block.getLossBlock(length - lengthCurrent).then(function (listLoss) {
-                console.log('loss', length - lengthCurrent);
-                listLoss.forEach(function (list) {
-                    hasNewBlocks(list);
-                })
-
             });
+            d.resolve(length);
         });
-    })
+        d1.resolve(d.promise);
+    });
 
-    return d.promise;
+    block.getBlocksSize().then(function (length) {
+        d_getLengthBlockchain.resolve(length);
+    });
+
+    q.all([d_getLengthCurrentBlocksFromDB.promise, d_getLengthBlockchain.promise]).then(function (data) {
+        const lengthCurrentBlocksFromDB = data[0];
+        const lengthBlockchainOnServer = data[1];
+        d_getLength.resolve(data);
+        console.log(lengthCurrentBlocksFromDB, lengthBlockchainOnServer);
+    });
+
+    //         db.update('block', 'current', {length: length});
+    //         block.getLossBlock(length - lengthCurrent).then(function (listLoss) {
+    //             console.log('loss', length - lengthCurrent);
+    //             listLoss.forEach(function (list) {
+    //                 hasNewBlocks(list);
+    //             })
+    //             d4.resolve(listLoss);
+    //         });
+    //         d3.resolve(d4.promise);
+    //     });
+    //     d2.resolve(d3.promise);
+    // })
+    //
+    // return q.all([d1, d2]);
+    return d1.promise;
 };
 
 // exports.GetAllBlocks = function () {
