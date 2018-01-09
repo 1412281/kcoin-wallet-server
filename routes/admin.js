@@ -47,10 +47,10 @@ router.get('/usersbalance', function(req, res) {
     console.log(data);
     walletRepo.getAllUsersBalance(0, {}).then(function(alldata){
         var totaluser = alldata.users_balance.length
-
         var total_balance = 0
-        // var total_real_balance = 0
+        var total_real_balance = 0
         //calculate balance of all system base on outputs in database
+        console.log('-----------GetBalanceSystem')
         adminRepo.getToTalBalanceSystem().then(function (total_balance_system) {
             console.log('----TOTAL BALANCE SYSTEM', total_balance_system);
             total_balance = total_balance_system

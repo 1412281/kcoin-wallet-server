@@ -20,11 +20,12 @@ exports.login = function(entity) {
 exports.getToTalBalanceSystem = function() {
     var d = q.defer();
     var TOTAL_BALANCE = 0;
-    db.find(COLLECTION, entity.email).then(function(outputs) {
+    db.load('output',{}).then(function(outputs) {
         console.log(outputs)
         outputs.forEach(function (output) {
             TOTAL_BALANCE +=output.value
         })
+        d.resolve(TOTAL_BALANCE)
 
     });
     return d.promise;
