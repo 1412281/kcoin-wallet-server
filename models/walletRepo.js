@@ -26,9 +26,9 @@ exports.register = function(entity) {
         email: entity.email,
         password: entity.password,
         address: entity.address,
-        balance: "0",
+        balance: "100",
         isActivated: false,
-        real_balance: "0"
+        real_balance: "100"
     }
     // insert into wallet(id, password, email, balance)
     var deferred = q.defer();
