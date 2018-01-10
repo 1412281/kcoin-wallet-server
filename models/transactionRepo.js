@@ -136,7 +136,7 @@ exports.createTransactionSystemOut = function (destinations) {
     var d3 = q.defer();
 
     var sum = 0;
-
+    var referenceOutputs;
     destinations.forEach(function (des) {
         sum += des.value;
     });
@@ -163,7 +163,7 @@ exports.createTransactionSystemOut = function (destinations) {
         // console.log('get key');
         userRepo.getKeysOfOutputs(listOutputs).then(function (keys) {
             // console.log(keys);
-            const referenceOutputs = listOutputs.map(function (output) {
+            referenceOutputs = listOutputs.map(function (output) {
                 return {
                     hash: output.transaction_hash,
                     value: output.value,
@@ -178,13 +178,16 @@ exports.createTransactionSystemOut = function (destinations) {
     });
     d2.promise.then(function (transferInfo) {
         // console.log(transferInfo);
-        transferInfo.referenceOutputs.forEach(function (output) {
+        d3.resolve(transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations));
+    });
+
+    d3.promise.then(function (result) {
+        referenceOutputs.forEach(function (output) {
+            console.log('delete', output.transaction_hash);
             db.delete('output', output.transaction_hash);
         });
-        d3.resolve(transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations));
-
-
     });
+
 
     return d3.promise;
 };
