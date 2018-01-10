@@ -41,7 +41,7 @@ r.post('/createTransaction', function (req, res) {
 
     d1_checkBalanceAndGetWalletSend.promise.then(function (walletSend) {
         console.log('have d1_checkBalanceAndGetWalletSend');
-        userRepo.updateBabance(walletSend.email, walletSend.balance).then(function (result) {
+        userRepo.update2Balance(walletSend.email, walletSend.balance, walletSend.balance).then(function (result) {
             d_updateBalanceUserSend.resolve(result);
         });
         userRepo.checkExistInDB(data.address_receive).then(function (addressReceiveIsInSystem) {

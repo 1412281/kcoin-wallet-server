@@ -272,7 +272,7 @@ exports.checkBlockHasAddressReceiveInSystem = function (block) {
                 listOutputs.forEach(function (output) {
                     const address = output.lockScript.split(' ')[1];
                     if (user[0].address === address) {
-                        userRepo.updateBabance(user[0].email, parseInt(parseInt(user[0].balance) + parseInt(output.value)));
+                        userRepo.update2Balance(user[0].email, parseInt(parseInt(user[0].balance) + parseInt(output.value)),parseInt(parseInt(user[0].real_balance) + parseInt(output.value)) );
                         console.log('Update Balance:', user[0].email, 'from', parseInt(user[0].balance), 'to', parseInt(parseInt(user[0].balance) + parseInt(output.value)));
                     }
                 })

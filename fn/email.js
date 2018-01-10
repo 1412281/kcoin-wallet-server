@@ -126,7 +126,7 @@ exports.transactionConfirm = function (hash) {
                         if (element.system === 'in') {
                             console.log('--------RECEIVER: ', email_receive)
                             if (email_receive) {
-                                userRepo.updateBabance(email_receive.email, parseInt(email_receive.balance) + parseInt(element.coin)).then(function (res) {
+                                userRepo.update2Balance()(email_receive.email, parseInt(email_receive.balance) + parseInt(element.coin),parseInt(email_receive.real_balance) + parseInt(element.coin)).then(function (res) {
                                     console.log(res);
                                     d1.resolve(res);
                                 })
