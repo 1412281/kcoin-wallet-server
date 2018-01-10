@@ -214,7 +214,7 @@ r.get('/getAllReceiveHistory', function(req, res) {
                             RESULT.push(outtrans)
                         })
                     // Recalculate from output
-                    res.json(RESULT);
+                    res.json(RESULT.reverse());
                 })
 
             })

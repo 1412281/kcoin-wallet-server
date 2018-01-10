@@ -5,8 +5,8 @@ var walletRepo = require('../models/walletRepo');
 var userRepo = require('../models/userRepo');
 var q = require('q');
 var ultis = require('./utils');
-const HOST = 'https://kcoin-wallet-server.herokuapp.com';
-// const HOST = 'http://localhost:4000';
+// const HOST = 'https://kcoin-wallet-server.herokuapp.com';
+const HOST = 'http://localhost:4000';
 const USER = 'kcoinwallet2lam@gmail.com';
 const PASSWORD = '123123123123';
 /*
