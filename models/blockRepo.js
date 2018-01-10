@@ -83,7 +83,7 @@ exports.getTotalCoinReceiveOutSystem = function (listuser) {
                     for (i = 0; i < transaction.outputs.length; i++) {
                         if (transaction.outputs[i].lockScript === address) {
                             // xac nhan outputs nay gui tien cho dia chi trong he thong
-                            console.log('da nhan:', transaction.outputs[i].value)
+                            console.log('da nhan:', transaction.outputs[i].value, transaction.hash)
                             TOTAL += transaction.outputs[i].value
                         }
                     }

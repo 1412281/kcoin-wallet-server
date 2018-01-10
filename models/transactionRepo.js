@@ -178,7 +178,11 @@ exports.createTransactionSystemOut = function (destinations) {
     });
     d2.promise.then(function (transferInfo) {
         // console.log(transferInfo);
+        transferInfo.referenceOutputs.forEach(function (output) {
+            db.delete('output', output.transaction_hash);
+        });
         d3.resolve(transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations));
+
 
     });
 

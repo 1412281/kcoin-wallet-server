@@ -18,7 +18,7 @@ exports.initListener = function () {
 
     setInterval(function () {
         createTransferWaitingTransaction().then(function (res) {
-            console.log(res);
+            // console.log(res);
         });
     }, 30000)
 };
