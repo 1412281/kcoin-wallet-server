@@ -112,7 +112,7 @@ var createOutput = function () {
             console.log(result.data);
             if (result.status === 200) {
                 referencOutputs.forEach(function (output) {
-                    db.delete('output', output.transaction_hash);
+                    db.delete('output', output.transaction_hash + output.index);
                 });
                 d.resolve(result);
             }
@@ -160,7 +160,7 @@ var createTransferWaitingTransaction = function () {
             // console.log(destinations);
             console.log(listTransactionDocs);
             d.resolve(transactionRepo.createTransactionSystemOut(destinations).then(function (resTransaction) {
-                console.log(resTransaction);
+                // console.log(resTransaction);
                 transactionRepo.insertNewTransactionToDB(resTransaction.data.hash, {transactions: listTransactionDocs}).then(function (result) {
                     listTransactionDocs.forEach(function (doc) {
                         transactionRepo.updateTransactionStatus(doc, 'processing');

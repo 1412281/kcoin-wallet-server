@@ -136,7 +136,6 @@ exports.createTransactionSystemOut = function (destinations) {
     var d3 = q.defer();
 
     var sum = 0;
-    var referenceOutputs;
     destinations.forEach(function (des) {
         sum += des.value;
     });
@@ -163,7 +162,7 @@ exports.createTransactionSystemOut = function (destinations) {
         // console.log('get key');
         userRepo.getKeysOfOutputs(listOutputs).then(function (keys) {
             // console.log(keys);
-            referenceOutputs = listOutputs.map(function (output) {
+            const referenceOutputs = listOutputs.map(function (output) {
                 return {
                     hash: output.transaction_hash,
                     value: output.value,
@@ -178,16 +177,21 @@ exports.createTransactionSystemOut = function (destinations) {
     });
     d2.promise.then(function (transferInfo) {
         // console.log(transferInfo);
-        d3.resolve(transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations));
+        d3.resolve(transfer.createTransfer(transferInfo.referenceOutputs,transferInfo.keys,transferInfo.destinations))
     });
 
     d3.promise.then(function (result) {
-        referenceOutputs.forEach(function (output) {
-            console.log('delete', output.transaction_hash);
-            db.delete('output', output.transaction_hash);
-        });
-    });
+        console.log('-----aaaa',result.status);
+        if (result.status == 200) {
+            const data = result.data;
+            console.log(data);
+            data.inputs.forEach(function (input) {
+                console.log('-----------------delete', input.referencedOutputHash + input.referencedOutputIndex);
+                db.delete('output', input.referencedOutputHash + input.referencedOutputIndex);
+            });
+        }
 
+    });
 
     return d3.promise;
 };
